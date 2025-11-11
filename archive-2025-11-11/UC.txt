@@ -1,0 +1,2523 @@
+﻿UsUse Case: Đăng ký (Sign Up)
+ 
+2️ Mục tiêu
+Cho phép người dùng mới (học sinh, giảng viên) tạo tài khoản trên hệ thống để có thể đăng nhập và sử dụng các chức năng học tập / giảng dạy.
+ 
+ 
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+* Nếu đăng ký thành công:
+→ Hệ thống tạo tài khoản mới, lưu thông tin vào cơ sở dữ liệu,
+→ Gửi email xác nhận (nếu có).
+* Người dùng có thể đăng nhập ngay sau khi kích hoạt tài khoản.
+________________
+
+
+6️. Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng chọn chức năng “Đăng ký” trên giao diện chính.
+	Hệ thống hiển thị form đăng ký gồm các trường: Họ tên, Email, Mật khẩu, Xác nhận mật khẩu, Vai trò (Học sinh / Giảng viên).
+	2
+	Người dùng nhập thông tin cá nhân và chọn nút “Đăng ký”.
+	Hệ thống kiểm tra tính hợp lệ của dữ liệu: không để trống, email đúng định dạng, mật khẩu trùng khớp.
+	3
+	Hệ thống kiểm tra trùng lặp email trong cơ sở dữ liệu.
+	Nếu email chưa tồn tại, chuyển sang bước 4.
+	4
+	Hệ thống tạo tài khoản mới và lưu thông tin vào cơ sở dữ liệu.
+	
+
+	5
+	Hệ thống gửi email xác thực (nếu có) đến địa chỉ email người dùng.
+	
+
+	6
+	Hệ thống hiển thị thông báo “Đăng ký thành công! Vui lòng xác nhận email để kích hoạt tài khoản.”
+	Người dùng có thể quay lại trang đăng nhập.
+	________________
+
+
+7️. Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Nhập thiếu thông tin
+	Một hoặc nhiều trường bị bỏ trống.
+	Hiển thị thông báo: “Vui lòng nhập đầy đủ thông tin.”
+	A2. Email không hợp lệ
+	Email sai định dạng.
+	Hiển thị: “Email không hợp lệ.”
+	A3. Mật khẩu xác nhận không khớp
+	Mật khẩu và xác nhận mật khẩu khác nhau.
+	Hiển thị: “Mật khẩu không trùng khớp.”
+	A4. Email đã tồn tại
+	Email đã được đăng ký trước đó.
+	Hiển thị: “Email này đã được sử dụng.”
+	A5. Lỗi hệ thống
+	Không kết nối được database hoặc server.
+	Hiển thị: “Có lỗi xảy ra, vui lòng thử lại sau.”
+	________________
+
+
+8️. Yêu cầu đặc biệt (Special Requirements)
+   * Mật khẩu phải được mã hóa (hash) khi lưu.
+   * Có thể sử dụng xác minh email (email verification) để kích hoạt tài khoản.
+   * Hệ thống cần xác thực độ mạnh của mật khẩu (ít nhất 8 ký tự, có chữ hoa, chữ thường, số)(tùy chọn)
+   * Giao diện cần hiển thị thông báo rõ ràng khi có lỗi.
+   * Có thể hỗ trợ đăng ký nhanh bằng Google/Facebook.
+________________
+
+
+9️. Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	User
+	Chứa thông tin tài khoản: userId, fullName, email, passwordHash, role, status, createdAt
+	VerificationToken (tùy chọn)
+	Dùng để xác minh email hoặc kích hoạt tài khoản.
+	________________
+
+
+10 Mở rộng (Extension / Future enhancement)
+   * Cho phép xác minh danh tính giảng viên qua giấy tờ (chứng chỉ, CMND,...).
+ Use Case: Quên mật khẩu
+ Mục tiêu
+Cho phép người dùng khôi phục quyền truy cập tài khoản khi không nhớ mật khẩu.
+ Tác nhân chính
+   * Người dùng (User): Người đã đăng ký tài khoản nhưng không thể đăng nhập do quên mật khẩu.
+ Điều kiện tiên quyết
+   * Người dùng đã từng đăng ký tài khoản với email hoặc số điện thoại hợp lệ.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang đăng nhập và nhấn vào liên kết "Quên mật khẩu".
+	2
+	Hệ thống hiển thị biểu mẫu yêu cầu nhập email hoặc số điện thoại đã đăng ký.
+	3
+	Người dùng nhập thông tin và gửi yêu cầu.
+	4
+	Hệ thống kiểm tra thông tin và gửi mã xác thực hoặc liên kết đặt lại mật khẩu qua email/SMS.
+	5
+	Người dùng truy cập liên kết hoặc nhập mã xác thực.
+	6
+	Hệ thống hiển thị biểu mẫu đặt lại mật khẩu mới.
+	7
+	Người dùng nhập mật khẩu mới và xác nhận.
+	8
+	Hệ thống cập nhật mật khẩu và hiển thị thông báo "Đặt lại mật khẩu thành công".
+	9
+	Người dùng có thể đăng nhập bằng mật khẩu mới.
+	 Luồng thay thế
+   * Email/SĐT không tồn tại: Hiển thị thông báo lỗi "Thông tin không hợp lệ".
+   * Mã xác thực hết hạn hoặc sai: Hiển thị thông báo lỗi và cho phép gửi lại mã.
+ Điều kiện sau cùng
+   * Người dùng có thể đăng nhập lại bằng mật khẩu mới.
+   * Hệ thống ghi nhận thay đổi và bảo mật tài khoản.
+ Ghi chú bổ sung
+   * Nên có giới hạn số lần gửi mã xác thực để tránh spam.
+   * Mật khẩu mới nên được kiểm tra độ mạnh (ít nhất 8 ký tự, có chữ hoa, số, ký tự đặc biệt).
+   * Có thể tích hợp xác thực hai bước (2FA) để tăng bảo mật.
+ 
+Use Case: Đăng nhập
+________________
+
+
+1️ Tên use case
+Đăng nhập (Login)
+________________
+
+
+2️. Mục tiêu
+Cho phép người dùng (học sinh, giảng viên hoặc quản trị viên) truy cập vào hệ thống khóa học trực tuyến bằng tên đăng nhập (email hoặc username) và mật khẩu hợp lệ.
+→ Xác thực danh tính để đảm bảo quyền truy cập đúng người, đúng vai trò.
+________________
+
+
+3️. Tác nhân (Actor)
+   * Học sinh (Student)
+   * Giảng viên (Instructor)
+   * Quản trị viên (Admin)
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+   * Nếu đăng nhập thành công: Người dùng được chuyển đến trang chủ tương ứng với vai trò (VD: Học sinh → Trang khóa học, Admin → Trang quản trị).
+   * Nếu đăng nhập thất bại: Hệ thống hiển thị thông báo lỗi và yêu cầu nhập lại.
+________________
+
+
+6️. Luồng sự kiện chính (Main Flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng truy cập vào trang đăng nhập.
+	Hệ thống hiển thị form đăng nhập gồm các trường: Email/Tên đăng nhập, Mật khẩu, và nút “Đăng nhập”.
+	2
+	Người dùng nhập thông tin đăng nhập (username/email và password).
+	
+
+	3
+	Người dùng nhấn nút “Đăng nhập”.
+	Hệ thống nhận thông tin và gửi yêu cầu xác thực đến máy chủ.
+	4
+	Hệ thống kiểm tra thông tin trong cơ sở dữ liệu.
+	
+
+	5
+	Nếu thông tin hợp lệ, hệ thống xác thực thành công.
+	Hệ thống tạo session cho người dùng, lưu trạng thái đăng nhập.
+	6
+	Hệ thống chuyển hướng đến trang chính tương ứng (VD: Trang học viên, trang quản lý,...).
+	Giao diện cập nhật với tên người dùng và các chức năng theo quyền.
+	________________
+
+
+7️. Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Sai thông tin đăng nhập
+	Username hoặc mật khẩu không đúng.
+	Hiển thị thông báo: “Tên đăng nhập hoặc mật khẩu không chính xác.”
+	A2. Tài khoản bị khóa hoặc chưa kích hoạt
+	Tài khoản chưa xác nhận email hoặc bị admin khóa.
+	Hiển thị thông báo: “Tài khoản của bạn chưa được kích hoạt hoặc đã bị khóa.”
+	A3. Quên mật khẩu
+	Người dùng không nhớ mật khẩu.
+	Hệ thống cung cấp liên kết “Quên mật khẩu” → dẫn đến trang khôi phục mật khẩu.
+	A4. Hệ thống lỗi hoặc mất kết nối
+	Không thể truy cập cơ sở dữ liệu hoặc server xác thực.
+	Hiển thị thông báo: “Có lỗi xảy ra, vui lòng thử lại sau.”
+	________________
+
+
+8 Yêu cầu đặc biệt (Special Requirements)
+   * Có tùy chọn “Nhớ đăng nhập” (Remember me
+   * Hỗ trợ Đăng nhập bằng Google(SDT).
+________________
+
+
+9️. Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	User
+	Chứa thông tin tài khoản: userId, username, email, passwordHash, role, status
+	Session / Token
+	Lưu thông tin phiên đăng nhập hoặc token xác thực (JWT nếu dùng API).
+	________________
+
+
+ Mở rộng (Extension / Future enhancement)
+   * Hỗ trợ xác thực hai lớp (2FA) qua email hoặc OTP.
+   * Ghi nhận lịch sử đăng nhập (thời gian, IP, thiết bị).
+Use Case: Đăng xuất
+ Mục tiêu
+Cho phép người dùng thoát khỏi phiên đăng nhập hiện tại để bảo vệ thông tin cá nhân và tài khoản.
+ Tác nhân chính
+   * Người dùng (User): Học viên đã đăng nhập vào hệ thống.
+ Điều kiện tiên quyết
+   * Người dùng đang trong trạng thái đăng nhập.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng nhấn vào biểu tượng tài khoản hoặc menu người dùng.
+	2
+	Chọn tùy chọn "Đăng xuất".
+	3
+	Hệ thống xác nhận hành động và tiến hành hủy phiên đăng nhập.
+	4
+	Người dùng được chuyển về trang chủ hoặc trang đăng nhập.
+	5
+	Hệ thống xóa token phiên và ngăn truy cập vào các chức năng yêu cầu đăng nhập.
+	 Luồng thay thế
+   * Lỗi kết nối hoặc hệ thống không phản hồi: Hiển thị thông báo lỗi và cho phép thử lại.
+   * Người dùng đóng trình duyệt mà không đăng xuất: Phiên có thể vẫn tồn tại nếu chưa hết hạn, tùy vào thiết kế bảo mật.
+ Điều kiện sau cùng
+   * Người dùng không còn đăng nhập vào hệ thống.
+   * Các chức năng yêu cầu xác thực sẽ bị khóa cho đến khi đăng nhập lại.
+ Ghi chú bổ sung
+   * Nên hiển thị thông báo "Bạn đã đăng xuất thành công".
+   * Có thể tích hợp tính năng tự động đăng xuất sau một khoảng thời gian không hoạt động.
+   * Đăng xuất nên xóa toàn bộ dữ liệu phiên khỏi trình duyệt (cookies, localStorage nếu có).
+ 
+Use Case: Học sinh/Giáo viên thay đổi thông tin tài khoản cá nhân
+ Mục tiêu
+Cho phép người dùng (học sinh hoặc giáo viên) xem và cập nhật thông tin cá nhân của chính mình, như tên, email, mật khẩu, ảnh đại diện…
+🔄 Luồng chính (Main Flow)
+1. Xem thông tin tài khoản
+   * Người dùng chọn “Tài khoản của tôi”(hoặc phần thông tin tk góc trên bên phải màn hình(thay thế cho nút Đăng nhập, Đăng ký)
+   * Hệ thống hiển thị thông tin: họ tên, email, vai trò, ảnh đại diện(nếu có)
+2. Cập nhật thông tin cá nhân
+   * Người dùng nhấn “Chỉnh sửa”
+   * Có thể thay đổi: họ tên, số điện thoại, ảnh đại diện
+   * Nhấn “Lưu” → hệ thống cập nhật vào CSDL
+3. Đổi mật khẩu
+   * Người dùng nhập mật khẩu cũ, mật khẩu mới, xác nhận lại
+   * Hệ thống kiểm tra và cập nhật nếu hợp lệ
+🔁 Luồng phụ (Alternate Flows)
+   * Mật khẩu cũ không đúng: Hệ thống báo lỗi và yêu cầu nhập lại
+   * Email không được phép thay đổi: Nếu email là định danh cố định, hệ thống không cho sửa
+ 
+Use Case: Trang chủ (Home Page)
+ 
+ 
+2️ Mục tiêu
+Hiển thị toàn bộ thông tin tổng quan và các chức năng chính của hệ thống khóa học trực tuyến cho người dùng (học sinh, khách chưa đăng nhập).
+→ Giúp người dùng dễ dàng truy cập, tìm kiếm khóa học, và điều hướng đến các tính năng khác như đăng nhập, đăng ký, xem khóa học, tin tức, hỗ trợ,…
+________________
+
+
+3️ Tác nhân (Actor)
+   * Khách (Guest) — người dùng chưa đăng nhập.
+   * Học sinh (Student) — người đã đăng nhập.
+________________
+
+
+5️ Hậu điều kiện (Postcondition)
+   * Người dùng có thể chọn điều hướng sang các trang khác (đăng nhập, đăng ký, xem khóa học, thống kê,...).
+________________
+
+
+6️ Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng truy cập vào đường dẫn chính của website.
+	Hệ thống tải trang chủ.
+	2
+	Hệ thống xác định trạng thái người dùng (chưa đăng nhập / đã đăng nhập).
+	
+
+	3
+	Hệ thống hiển thị giao diện trang chủ tương ứng:
+	
+
+	
+
+	- Nếu chưa đăng nhập: hiển thị danh sách khóa học nổi bật, giới thiệu nền tảng, nút “Đăng nhập” và “Đăng ký”, các mục khác chuyển hướng đến trang Đăng nhập kèm thông báo: “Vui lòng đăng nhập để tiếp tục.”.
+	
+
+	
+
+	- Nếu đã đăng nhập: hiển thị tài khoản thay cho nút đăng nhập, khóa học của tôi(all, đang học, học xong (có bộ lọc)), , thống kê, giỏ hàng, bài tập.
+	
+
+	4
+	Người dùng có thể tìm kiếm khóa học, chọn danh mục, hoặc xem chi tiết khóa học trong trang chủ.
+	Hệ thống điều hướng đến trang kết quả tìm kiếm hoặc chi tiết khóa học.
+	5
+	Người dùng có thể chuyển sang các trang khác (đăng nhập, đăng ký, thống kê, giỏ hàng, v.v.).
+	Hệ thống điều hướng đến trang tương ứng.
+	
+
+
+________________
+
+
+7️ Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Lỗi tải dữ liệu khóa học
+	Dữ liệu khóa học không hiển thị được.
+	Hiển thị thông báo: “Không thể tải dữ liệu khóa học, vui lòng thử lại sau.”
+	A2. Người dùng chưa đăng nhập nhưng bấm vào chức năng yêu cầu đăng nhập
+	VD: Xem “Khóa học của tôi”.
+	Hệ thống chuyển hướng đến trang Đăng nhập kèm thông báo: “Vui lòng đăng nhập để tiếp tục.”
+	A3. Lỗi kết nối hệ thống
+	Trang chủ không tải được do lỗi server hoặc mạng.
+	Hiển thị thông báo: “Trang không khả dụng. Vui lòng thử lại sau.”
+	________________
+
+
+8️ Yêu cầu đặc biệt (Special Requirements)
+   * Có giao diện thân thiện, trực quan (hiển thị banner, menu, danh mục khóa học).
+   * Có thanh tìm kiếm khóa học hoạt động thời gian thực (autocomplete).
+   * Hiển thị nội dung động: khóa học mới, khóa học nổi bật, đánh giá, giảng viên tiêu biểu(tùy chọn).
+   * Có liên kết đến các trang chính: Giới thiệu, Liên hệ, Hỗ trợ
+________________
+   * 9️ Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	Course
+	Chứa danh sách khóa học (tên, giảng viên, giá, mô tả, lượt xem).
+	User
+	Dùng để xác định người dùng hiện tại đã đăng nhập hay chưa.
+	Category
+	Danh mục khóa học để hiển thị trên menu hoặc bộ lọc.
+	Banner / News
+	Thông tin quảng cáo, tin tức hiển thị ở phần đầu trang.
+	________________
+
+
+10. Mở rộng (Extension / Future enhancement)
+   * Hiển thị thông báo hoặc khuyến mãi đặc biệt.
+Use Case: Tìm kiếm và lọc khóa học
+🎯 Mục tiêu
+Giúp người dùng dễ dàng tìm thấy các khóa học phù hợp với nhu cầu thông qua chức năng tìm kiếm và bộ lọc theo các tiêu chí như chủ đề, giá cả, cấp độ, giáo viên.
+👤 Tác nhân chính
+   * Người dùng (User): Học viên đang tìm kiếm khóa học phù hợp.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang danh sách khóa học(hoặc trang chủ nếu k có trang ds KH riêng) hoặc thanh tìm kiếm.
+	2
+	Người dùng nhập từ khóa tìm kiếm (ví dụ: "thiết kế đồ họa", "Excel nâng cao").
+	3
+	Hệ thống hiển thị kết quả tìm kiếm sơ bộ.
+	4
+	Người dùng sử dụng bộ lọc để thu hẹp kết quả theo các tiêu chí:
+	
+
+	- Chủ đề: CNTT, Kinh doanh, Ngoại ngữ, Nghệ thuật...
+	
+
+	- Giá cả: Miễn phí, dưới 500K, từ 500K–1 triệu, trên 1 triệu...
+	
+
+	- Cấp độ: Cơ bản, Trung cấp, Nâng cao
+	
+
+	- Giáo viên: Tên giảng viên hoặc tổ chức đào tạo
+	5
+	Hệ thống cập nhật kết quả theo bộ lọc đã chọn.
+	6
+	Người dùng xem chi tiết khóa học hoặc thêm vào giỏ hàng.
+	 Luồng thay thế
+   * Không có kết quả phù hợp: Hiển thị thông báo "Không tìm thấy khóa học phù hợp" và gợi ý các chủ đề liên quan.
+   * Người dùng không nhập từ khóa: Cho phép duyệt theo danh mục hoặc bộ lọc trước.
+Ghi chú bổ sung
+   * Có thể tích hợp tính năng gợi ý khóa học dựa trên lịch sử học tập hoặc hành vi người dùng.
+   * Bộ lọc nên có khả năng kết hợp nhiều tiêu chí cùng lúc.
+   * Hệ thống nên hỗ trợ tìm kiếm tiếng Việt có dấu và không dấu.
+ 
+Use Case: Thêm vào giỏ hàng
+ Mục tiêu
+Cho phép người dùng thêm khóa học mong muốn vào giỏ hàng để chuẩn bị thanh toán hoặc lưu lại để mua sau.
+ Tác nhân chính
+   * Người dùng (User): Học viên đang duyệt các khóa học trên nền tảng.
+ Điều kiện tiên quyết
+   * Người dùng đã đăng nhập vào hệ thống.
+Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng duyệt danh sách khóa học hoặc trang chi tiết khóa học.
+	2
+	Người dùng nhấn nút "Thêm vào giỏ hàng".
+	3
+	Hệ thống kiểm tra khóa học đã có trong giỏ hàng chưa.
+	4
+	Nếu chưa có, hệ thống thêm khóa học vào giỏ hàng.
+	5
+	Hiển thị thông báo xác nhận "Đã thêm vào giỏ hàng".
+	6
+	Cập nhật biểu tượng giỏ hàng (số lượng khóa học).
+	 Luồng thay thế
+   * Khóa học đã có trong giỏ hàng: Hiển thị thông báo "Khóa học đã có trong giỏ hàng".
+   * Người dùng chưa đăng nhập: Yêu cầu đăng nhập trước khi thêm vào giỏ hàng.
+ Điều kiện sau cùng
+   * Khóa học được lưu trong giỏ hàng của người dùng (tạm thời hoặc vĩnh viễn tùy thiết kế).
+   * Người dùng có thể truy cập giỏ hàng để thanh toán hoặc chỉnh sửa.
+Use Case: Thanh toán
+ Mục tiêu
+Cho phép người dùng hoàn tất việc mua các khóa học đã chọn trong giỏ hàng thông qua các phương thức thanh toán được hỗ trợ.
+ Tác nhân chính
+   * Người dùng (User): Học viên đã thêm khóa học vào giỏ hàng và muốn thanh toán.
+Điều kiện tiên quyết
+   * Người dùng đã đăng nhập.
+   * Giỏ hàng có ít nhất một khóa học hợp lệ.
+   * Hệ thống có kết nối với cổng thanh toán.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập giỏ hàng và nhấn nút "Thanh toán".
+	2
+	Hệ thống hiển thị trang thanh toán với danh sách khóa học, tổng tiền và các phương thức thanh toán.
+	3
+	Người dùng chọn phương thức thanh toán (ví dụ: thẻ tín dụng, ví điện tử, chuyển khoản).
+	4
+	Người dùng nhập thông tin thanh toán (nếu cần).
+	5
+	Người dùng xác nhận thanh toán.
+	6
+	Hệ thống gửi yêu cầu đến cổng thanh toán.
+	7
+	Cổng thanh toán phản hồi kết quả (thành công/thất bại).
+	
+
+	Nếu thành công, hệ thống:
+	   * Cập nhật trạng thái đơn hàng.
+   * Cấp quyền truy cập khóa học cho người dùng.
+   * Gửi email/xác nhận đơn hàng. | 9 | Hiển thị thông báo "Thanh toán thành công". |
+ Luồng thay thế
+   * Thanh toán thất bại: Hiển thị thông báo lỗi và cho phép người dùng thử lại hoặc chọn phương thức khác.
+   * Giỏ hàng trống: Không cho phép truy cập trang thanh toán, hiển thị thông báo "Giỏ hàng của bạn đang trống".
+   * Thông tin thanh toán không hợp lệ: Hiển thị lỗi và yêu cầu nhập lại.
+ Điều kiện sau cùng
+   * Người dùng đã thanh toán thành công và có quyền truy cập vào các khóa học đã mua.
+   * Hệ thống ghi nhận đơn hàng và lưu trữ thông tin giao dịch.
+ Ghi chú bổ sung
+   * Có thể tích hợp các cổng thanh toán như: Momo, ZaloPay, VNPAY, Stripe, PayPal.
+   * Hệ thống nên hỗ trợ hoàn tiền và xử lý lỗi giao dịch.
+   * Có thể thêm tính năng mã giảm giá hoặc ưu đãi trong quá trình thanh toán.
+Use Case: Khóa học của tôi
+ Mục tiêu
+Cho phép người dùng xem và truy cập các khóa học mà họ đã đăng ký, đang học hoặc đã hoàn thành.
+ Tác nhân chính
+   * Người dùng (User): Học viên đã đăng ký một hoặc nhiều khóa học.
+ Điều kiện tiên quyết
+   * Người dùng đã đăng nhập vào tài khoản cá nhân.
+   * Người dùng đã đăng ký ít nhất một khóa học (miễn phí hoặc trả phí).
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang "Khóa học của tôi" từ menu hoặc trang chủ.
+	2
+	Hệ thống hiển thị danh sách các khóa học đã đăng ký, kèm theo trạng thái: Đang học, Chưa bắt đầu, Đã hoàn thành.
+	3
+	Người dùng có thể:
+	
+
+	- Nhấn vào khóa học để tiếp tục học.
+	
+
+	- Xem tiến độ học tập (ví dụ: 40% hoàn thành).
+	
+
+	- Lọc theo: Tất cả, Đã hoàn thành, đang học.
+	
+
+	- Đánh giá khóa học sau khi hoàn thành.
+	4
+	Hệ thống ghi nhận các hành động và cập nhật dữ liệu học tập.
+	🔄 Luồng thay thế
+   * Không có khóa học nào: Hiển thị thông báo "Bạn chưa đăng ký khóa học nào" và gợi ý các khóa học nổi bật.
+   * Khóa học bị xóa hoặc không còn tồn tại: Hiển thị thông báo lỗi và ẩn khỏi danh sách.
+✅ Điều kiện sau cùng
+   * Người dùng có thể truy cập và tiếp tục học các khóa học đã đăng ký.
+   * Hệ thống cập nhật tiến độ học tập và trạng thái hoàn thành.
+📌 Ghi chú bổ sung
+   * Có thể thêm bộ lọc theo trạng thái (Tất cả, Đang học, Đã hoàn thành).
+   * Hỗ trợ tìm kiếm trong danh sách khóa học cá nhân.
+   * Có thể tích hợp thông báo nhắc học hoặc gợi ý khóa học tiếp theo.
+ 
+Use Case: Đánh giá khóa học
+ Mục tiêu
+Cho phép học viên gửi đánh giá về khóa học đã tham gia, bao gồm số sao, nhận xét.
+ Tiền điều kiện
+   * Học viên đã đăng ký khóa học.
+   * Học viên đã đăng nhập vào hệ thống.
+ Luồng chính (Main Flow)
+1. Truy cập chức năng đánh giá
+   * Học viên chọn “Đánh giá khóa học” trang chi tiết khóa học.
+2. Nhập thông tin đánh giá
+   * Chọn điểm số (ví dụ: 1–5 sao)
+   * Nhập nhận xét (tùy chọn)
+   * Chọn các tiêu chí: nội dung, giảng viên, tài liệu, trải nghiệm
+3. Gửi đánh giá
+   * Hệ thống xác nhận và lưu vào cơ sở dữ liệu
+   * Hiển thị thông báo “Đánh giá thành công”
+ Luồng phụ (Alternate Flows)
+   * Chưa đăng ký khóa học: hệ thống không cho phép đánh giá
+   * Đã đánh giá rồi: hệ thống hiển thị đánh giá cũ, cho phép sửa nếu cần
+ Dữ liệu đánh giá lưu trữ
+Trường
+	Kiểu
+	Ghi chú
+	ID đánh giá
+	int
+	Tự động tăng
+	ID học viên
+	int
+	Người đánh giá
+	ID khóa học
+	int
+	Khóa học được đánh giá
+	Điểm số
+	int
+	1–5
+	Nhận xét
+	text
+	Tùy chọn
+	Ngày đánh giá
+	date
+	Tự động ghi nhận
+	 
+	 
+	 
+	Use Case: Nộp bài (Submit Assignment)
+ 
+________________
+
+
+2️ Mục tiêu
+Cho phép học sinh nộp bài tập, bài kiểm tra hoặc dự án cho khóa học mà mình đang tham gia — đúng hạn, đúng định dạng và có thể kiểm tra lại sau khi nộp.
+→ Mục tiêu là giúp hệ thống thu nhận bài nộp, ghi nhận thời gian, và chuyển đến giảng viên để chấm điểm.
+________________
+
+
+3️. Tác nhân (Actor)
+   * Học sinh (Student) – người thực hiện việc nộp bài.
+   * Giảng viên (Instructor) (liên quan gián tiếp) – người chấm bài sau khi học sinh nộp.
+________________
+
+
+4️ Điều kiện tiên quyết (Precondition)
+   * Bài tập chưa hết hạn nộp (deadline hợp lệ).
+________________
+
+
+5️ Hậu điều kiện (Postcondition)
+   * Hệ thống ghi nhận thời gian nộp, trạng thái bài nộp, và liên kết với tài khoản học sinh.
+   * Giảng viên có thể xem và chấm điểm bài nộp.
+________________
+
+
+6️ Luồng sự kiện chính (Main Flow)
+Bước
+	Hành động của học sinh
+	Phản hồi của hệ thống
+	1
+	Học sinh đăng nhập vào hệ thống và truy cập mục “Bài tập” của khóa học.
+	Hệ thống hiển thị danh sách bài tập cần nộp cùng thời hạn.
+	2
+	Học sinh chọn bài tập muốn nộp.
+	Hệ thống hiển thị thông tin chi tiết: mô tả, deadline, file mẫu (nếu có).
+	3
+	Học sinh chọn nút “Nộp bài”.
+	Hệ thống hiển thị form upload: chọn file hoặc nhập nội dung trực tiếp.
+	4
+	Học sinh chọn tệp bài làm từ máy tính (hoặc dán nội dung bài viết).
+	Hệ thống xác nhận loại tệp hợp lệ (PDF, DOCX, ZIP, v.v.).
+	5
+	Học sinh nhấn “Gửi bài” để nộp.
+	Hệ thống tải file lên máy chủ, lưu vào thư mục tương ứng với học sinh.
+	6
+	Hệ thống hiển thị thông báo “Nộp bài thành công” kèm thời gian nộp.
+	Hệ thống cập nhật trạng thái: “Đã nộp” và gửi thông báo đến giảng viên.
+	________________
+
+
+7️⃣ Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Nộp trễ hạn
+	Deadline đã qua.
+	Hệ thống hiển thị cảnh báo “Đã quá hạn nộp bài
+	A2. File không hợp lệ
+	Định dạng tệp không đúng (VD: .exe, .bat).
+	Hiển thị thông báo: “Định dạng tệp không được chấp nhận.”
+	A3. File quá dung lượng cho phép
+	VD: file > 50MB.
+	Hiển thị thông báo: “Dung lượng file vượt quá giới hạn.”
+	A4. Lỗi mạng khi tải lên
+	Kết nối bị gián đoạn trong quá trình upload.
+	Hiển thị thông báo lỗi và yêu cầu nộp lại.
+	A5. Học sinh nộp lại bài
+	Bài trước đó đã nộp.
+	Hệ thống hiển thị tùy chọn “Gửi lại” và ghi nhận phiên bản mới (giữ lịch sử các lần nộp).
+	________________
+
+
+8️⃣ Yêu cầu đặc biệt (Special Requirements)
+   * Dung lượng file tối đa (VD: 50MB).
+   * Cho phép xem trước bài nộp trước khi gửi.
+   * Cho phép nộp lại bài (nếu giảng viên bật tùy chọn này).
+   * Tự động ghi lại thời gian nộp và người nộp.
+   * Gửi thông báo cho giảng viên khi có bài nộp mới.
+   * Bảo đảm tính toàn vẹn file (hash check).
+   * Có thể nộp bài qua drag & drop để tăng trải nghiệm người dùng.
+________________
+
+
+9️⃣ Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	Assignment
+	Thông tin bài tập: id, title, description, deadline, courseId.
+	Submission
+	Dữ liệu bài nộp: submissionId, assignmentId, studentId, filePath, submitTime, status.
+	User
+	Thông tin học sinh nộp bài.
+	Notification
+	Lưu thông báo gửi đến giảng viên khi có bài nộp.
+	________________
+
+
+🔟 Mở rộng (Extension / Future enhancement)
+   * Cho phép nộp bài nhóm (nhiều học sinh cùng nộp).
+   * Tự động so sánh đạo văn (plagiarism check).
+   * Cho phép giảng viên ghi chú và phản hồi trực tiếp trên bài nộp.
+   * Tích hợp AI tự động chấm bài / nhận diện nội dung sai sót.
+   * Hỗ trợ nộp bài qua API / Google Drive / OneDrive.
+Use Case: Xem điểm (có nên hiện điểm trong phần nộp bài luôn k, gv chấm có điểm thì vào trang nộp bài xem)
+🎯 Mục tiêu
+Cho phép người học xem điểm số và phản hồi từ giảng viên sau khi bài được chấm.
+👤 Tác nhân chính
+   * Người dùng (User): Học viên đã nộp bài hoặc hoàn thành bài kiểm tra.
+📋 Điều kiện tiên quyết
+   * Người dùng đã đăng nhập.
+   * Bài đã được chấm điểm bởi giảng viên.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập khóa học và chọn mục "Kết quả" hoặc "Bài đã chấm".
+	2
+	Hệ thống hiển thị danh sách bài đã chấm cùng điểm số.
+	3
+	Người dùng chọn bài để xem chi tiết.
+	4
+	Hệ thống hiển thị: điểm số, nhận xét của giảng viên, file phản hồi (nếu có).
+	5
+	Người dùng có thể gửi phản hồi hoặc yêu cầu chấm lại (nếu được phép).
+	🔄 Luồng thay thế
+   * Chưa có điểm: Hiển thị trạng thái "Đang chấm" hoặc "Chưa có kết quả".
+   * Lỗi hiển thị: Hiển thị thông báo lỗi và hướng dẫn liên hệ hỗ trợ.
+✅ Điều kiện sau cùng
+   * Người dùng xem được điểm và phản hồi, có thể cải thiện bài học hoặc gửi khiếu nại nếu cần.
+ 
+Use Case: Thống kê ( học sinh)
+1️. Tên use case
+Thống kê cho học sinh
+________________
+
+
+2️. Mục tiêu
+Giúp học sinh xem được các thông tin thống kê về quá trình học tập của mình như:
+   * Tổng số khóa học đã đăng ký -> Số khóa học đã hoàn thành
+   * Điểm trung bình, thống kê điểm
+   * Thời gian học gần nhất, tổng thời gian học
+Mục tiêu là giúp học sinh tự đánh giá và cải thiện hiệu quả học tập.
+________________
+
+
+3️. Tác nhân (Actor)
+Học sinh (Student) – người đã đăng nhập vào hệ thống và có tài khoản hợp lệ.
+________________
+
+
+4️. Điều kiện tiên quyết (Precondition)
+   * Học sinh đã đăng nhập vào hệ thống.
+   * Dữ liệu học tập (lịch sử học, kết quả bài kiểm tra, tiến độ...) đã được lưu trong database.
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+   * Hệ thống hiển thị bảng thống kê học tập cá nhân của học sinh.
+   * Học sinh có thể xem biểu đồ trực quan.
+________________
+
+
+6️. Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của học sinh
+	Phản hồi của hệ thống
+	1
+	Học sinh chọn mục "Thống kê học tập" trong menu tài khoản hoặc trang khóa học.
+	Hệ thống hiển thị giao diện thống kê rỗng và tiến hành truy vấn dữ liệu.
+	2
+	Hệ thống lấy dữ liệu thống kê từ database: danh sách khóa học, tiến độ, điểm số, thời gian học, số bài kiểm tra,...
+	
+
+	3
+	Hệ thống tính toán các chỉ số thống kê: tổng số khóa học, tỉ lệ hoàn thành, điểm trung bình, biểu đồ tiến độ,...
+	
+
+	4
+	Hệ thống hiển thị kết quả thống kê trên giao diện (bảng + biểu đồ).
+	Giao diện có thể gồm: Biểu đồ tròn tiến độ học, cột thời gian học theo tuần, bảng điểm trung bình từng khóa học,...
+	5
+	Học sinh có thể lọc thống kê theo thời gian (tháng, quý, năm) hoặc theo loại khóa học (đồ họa, lập trình, ngoại ngữ,...).
+	Hệ thống cập nhật và hiển thị lại thống kê theo bộ lọc được chọn.
+	6
+	(Tùy chọn) Học sinh chọn “Xuất thống kê” → chọn định dạng (PDF hoặc Excel).
+	Hệ thống tạo file thống kê và cho phép tải xuống.
+	________________
+
+
+7️. Luồng phụ (Alternative flows)
+Trường hợp
+	Mô tả
+	A1. Không có dữ liệu học tập
+	Nếu học sinh chưa tham gia khóa học nào, hệ thống hiển thị thông báo: “Bạn chưa có dữ liệu để thống kê. Hãy tham gia một khóa học để bắt đầu.”
+	A2. Lỗi kết nối database
+	Nếu hệ thống không truy xuất được dữ liệu, hiển thị thông báo lỗi “Không thể lấy dữ liệu. Vui lòng thử lại sau.”
+	A3. Học sinh chưa đăng nhập
+	Nếu học sinh chưa đăng nhập, hệ thống tự động chuyển hướng đến trang Đăng nhập.
+	________________
+
+
+8️. Yêu cầu đặc biệt (Special requirements)
+   * Thống kê được hiển thị dưới dạng trực quan (biểu đồ): Pie chart (tỉ lệ hoàn thành), Bar chart (thời gian học), Line chart (điểm số theo thời gian).
+   * Dữ liệu thống kê phải được tổng hợp theo thời gian thực (real-time) hoặc cập nhật theo ngày.
+   * Thời gian phản hồi < 5 giây.
+________________
+
+
+9️. Dữ liệu liên quan (Related data)
+Dữ liệu
+	Mô tả
+	Bảng Học viên (Student)
+	Thông tin cá nhân của học sinh
+	Bảng Khóa học (Course)
+	Thông tin khóa học đã đăng ký
+	Bảng Tiến độ học (Progress)
+	Ghi nhận số bài học đã xem, % hoàn thành
+	Bảng Kết quả kiểm tra (QuizResult)
+	Điểm bài kiểm tra, ngày làm bài
+	Bảng Lịch sử học (ActivityLog)
+	Thời gian đăng nhập, tổng thời gian học
+	________________
+
+
+Giáo viên
+Use Case: Quản lý khóa học
+ Mục tiêu
+Cho phép giảng viên hoặc quản trị viên theo dõi, chỉnh sửa và kiểm soát toàn bộ nội dung và hoạt động của các khóa học mà họ phụ trách.
+ Tác nhân chính
+   * Giảng viên (Instructor): Người tạo và giảng dạy khóa học.
+   * Quản trị viên (Admin): Người có quyền kiểm soát toàn bộ hệ thống và nội dung khóa học.
+ Điều kiện tiên quyết
+   * Tác nhân đã đăng nhập với quyền phù hợp.
+   * Có ít nhất một khóa học đã được tạo hoặc phân công.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học" từ dashboard.
+	2
+	Hệ thống hiển thị danh sách các khóa học mà giảng viên đang phụ trách.
+	3
+	Giảng viên chọn một khóa học để quản lý chi tiết.
+	4
+	Các chức năng quản lý bao gồm:
+	
+
+	- Chỉnh sửa thông tin khóa học: tên, mô tả, ảnh đại diện, giá, cấp độ.
+	
+
+	- Quản lý nội dung: thêm/sửa/xóa bài giảng, video, tài liệu, bài tập.
+	
+
+	- Quản lý học viên: xem danh sách học viên, tiến độ học, điểm số.
+	
+
+	- Quản lý bài nộp: xem, chấm điểm, phản hồi bài tập.
+	
+
+	- Thống kê học tập: lượt truy cập, tỷ lệ hoàn thành, đánh giá học viên.
+	
+
+	- Trạng thái khóa học: xuất bản, ẩn, lưu nháp, khóa.
+	5
+	Hệ thống lưu lại các thay đổi và cập nhật cho học viên nếu cần.
+	🔄 Luồng thay thế
+   * Không có khóa học nào: Hiển thị thông báo "Bạn chưa có khóa học nào để quản lý".
+   * Không có quyền truy cập: Hiển thị lỗi "Bạn không có quyền quản lý khóa học này".
+✅ Điều kiện sau cùng
+   * Giảng viên có thể kiểm soát toàn bộ nội dung và hoạt động của khóa học.
+   * Hệ thống phản ánh chính xác các thay đổi đến học viên và giao diện người dùng.
+📌 Ghi chú bổ sung
+   * Có thể phân quyền cho trợ giảng hoặc cộng tác viên.
+   * Hệ thống nên hỗ trợ lưu nháp và kiểm duyệt nội dung trước khi xuất bản.
+ 
+Use Case: Tạo khóa học
+🎯 Mục tiêu
+Cho phép giảng viên (hoặc quản trị viên?) tạo mới một khóa học để cung cấp nội dung học tập cho người dùng.
+ Tác nhân chính
+   * Giảng viên (Instructor): Người tạo và quản lý nội dung khóa học.
+   * Quản trị viên (Admin): Có quyền tạo khóa học thay mặt giảng viên hoặc tổ chức.
+ Điều kiện tiên quyết
+   * Tác nhân đã đăng nhập với quyền giảng viên hoặc quản trị viên.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập trang "Quản lý khóa học" và chọn "Tạo khóa học mới".
+	2
+	Hệ thống hiển thị biểu mẫu tạo khóa học gồm các trường:
+	
+
+	- Tên khóa học
+	
+
+	- Mô tả ngắn
+	
+
+	- Chủ đề/chuyên ngành
+	
+
+	- Cấp độ (Cơ bản, Trung cấp, Nâng cao)
+	
+
+	- Giá (Miễn phí hoặc có phí)
+	
+
+	- Ảnh đại diện khóa học
+	
+
+	- Ngôn ngữ giảng dạy
+	
+
+	- Lịch học (nếu có)
+	3
+	Giảng viên nhập thông tin và nhấn "Lưu" .
+	4
+	Hệ thống kiểm tra tính hợp lệ và lưu khóa học vào cơ sở dữ liệu.
+	5
+	Hiển thị thông báo "Tạo khóa học thành công" và chuyển đến trang quản lý nội dung khóa học.
+	🔄 Luồng thay thế
+   * Thiếu thông tin bắt buộc: Hệ thống hiển thị lỗi và yêu cầu nhập lại.
+   * Không có quyền tạo khóa học: Hiển thị thông báo "Bạn không có quyền thực hiện thao tác này".
+✅ Điều kiện sau cùng
+   * Khóa học được tạo và hiển thị trong danh sách khóa học của giảng viên.
+   * Người dùng có thể tìm thấy khóa học nếu được xuất bản.
+📌 Ghi chú bổ sung
+   * Sau khi tạo, giảng viên có thể thêm nội dung: video bài giảng, tài liệu, bài tập, câu hỏi trắc nghiệm.
+   * Có thể tích hợp tính năng "Lưu nháp" để hoàn thiện sau.
+   * Hệ thống nên hỗ trợ kiểm duyệt nội dung trước khi khóa học được công khai.
+Use Case: Thống kê khóa học (Giảng viên)
+ Mục tiêu
+Cung cấp cho giảng viên cái nhìn tổng quan và chi tiết về hiệu quả giảng dạy, mức độ tương tác và tiến độ học tập của học viên trong từng khóa học.
+ Tác nhân chính
+   * Giảng viên (Instructor): Người tạo và giảng dạy khóa học, cần theo dõi hiệu quả và chất lượng đào tạo.
+ Điều kiện tiên quyết
+   * Giảng viên đã đăng nhập vào hệ thống.
+   * Có ít nhất một khóa học đang hoạt động hoặc đã hoàn thành.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Thống kê" từ trang quản lý khóa học.
+	4
+	Hệ thống hiển thị các chỉ số thống kê, bao gồm:
+-Doanh thu
+	
+
+	- Số lượng học viên đăng ký theo thời gian
+	
+
+	- Tỷ lệ hoàn thành khóa học
+	
+
+	- Điểm trung bình, điểm cao nhất/thấp nhất
+	
+
+	- Số lượt xem bài giảng/video
+	
+
+	- Tỷ lệ hoàn thành bài tập, bài kiểm tra
+	5
+	Giảng viên có thể lọc theo thời gian, nhóm học viên, hoặc bài học cụ thể.
+	6
+	Có thể xuất dữ liệu thống kê ra file (Excel/PDF) nếu được hỗ trợ.
+	 Luồng thay thế
+   * Không có dữ liệu thống kê: Hiển thị thông báo "Chưa có dữ liệu thống kê ".
+   * Lỗi tải dữ liệu: Hiển thị thông báo lỗi và cho phép thử lại.
+ Điều kiện sau cùng
+   * Giảng viên nắm được tình hình học tập và mức độ hiệu quả của khóa học.
+   * Có thể sử dụng dữ liệu để cải thiện nội dung, phương pháp giảng dạy hoặc hỗ trợ học viên.
+ Ghi chú bổ sung
+   * Nên hỗ trợ biểu đồ trực quan (cột, tròn, đường) để dễ theo dõi.
+   * Có thể tích hợp cảnh báo sớm nếu tỷ lệ bỏ học cao hoặc học viên không hoàn thành bài tập.
+   * Hệ thống nên cho phép so sánh giữa các khóa học hoặc giữa các kỳ học.
+Use Case: Xem danh sách học sinh đã đăng ký khóa
+ Mục tiêu
+Giảng viên có thể xem danh sách học viên đã đăng ký khóa học để theo dõi, hỗ trợ và quản lý lớp học.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học".
+	2
+	Chọn khóa học cần xem danh sách học viên.
+	3
+	Hệ thống hiển thị danh sách học viên gồm: họ tên, email, ngày đăng ký, trạng thái học (đang học, hoàn thành, chưa bắt đầu).
+	4
+	Giảng viên có thể lọc, tìm kiếm, hoặc xuất danh sách ra file.
+	 Use Case: Chấm điểm
+🎯 Mục tiêu
+Giảng viên xem bài tập đã nộp, chấm điểm và viết nhận xét để phản hồi cho học viên.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Bài tập" trong khóa học.
+	2
+	Chọn bài cần chấm và xem danh sách học viên đã nộp.
+	3
+	Chọn từng bài nộp để xem nội dung.
+	4
+	Nhập điểm số và viết nhận xét (feedback).
+	5
+	Nhấn "Lưu" để gửi kết quả cho học viên.
+	6
+	Hệ thống cập nhật điểm và hiển thị cho học viên.
+	Use Case: Tạo bài tập cho học sinh
+🎯 Mục tiêu
+Cho phép giảng viên tạo bài tập để học sinh thực hành, kiểm tra kiến thức và đánh giá năng lực.
+👤 Tác nhân chính
+   * Giảng viên (Instructor): Người tạo và giao bài tập cho học viên trong khóa học.
+📋 Điều kiện tiên quyết
+   * Giảng viên đã đăng nhập vào hệ thống.
+   * Giảng viên có ít nhất một khóa học đang hoạt động.
+   * Hệ thống hỗ trợ chức năng bài tập trong khóa học.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học" và chọn khóa học cần tạo bài tập.
+(hoặc vào mục bài tập, hệ thống hiện ra các khóa học, nhấn vào khóa học để giao bài)
+	2
+	Chọn tab "Bài tập" hoặc "Nhiệm vụ" và nhấn "Tạo bài tập mới".
+	3
+	Nhập thông tin bài tập:
+	
+
+	- Tiêu đề bài tập
+	
+
+	- Mô tả yêu cầu
+	
+
+	- Hạn nộp
+	
+
+	- Hình thức nộp (tải file, nhập trực tiếp, trắc nghiệm, v.v.)
+	
+
+	- Điểm tối đa
+	
+
+	- Tài liệu đính kèm (nếu có)
+	4
+	Nhấn "Lưu" hoặc "Giao bài".
+	5
+	Hệ thống hiển thị bài tập cho học viên trong giao diện khóa học.
+	🔄 Luồng thay thế
+   * Thiếu thông tin bắt buộc: Hệ thống hiển thị lỗi và yêu cầu nhập lại.
+   * Chưa chọn khóa học: Không cho phép tạo bài tập nếu không có khóa học cụ thể.
+✅ Điều kiện sau cùng
+   * Bài tập được tạo thành công và hiển thị cho học viên.
+   * Học viên có thể nộp bài đúng hạn và giảng viên có thể chấm điểm sau đó.
+📌 Ghi chú bổ sung
+   * Có thể thêm tùy chọn cho phép nộp lại bài (nếu được).
+   * Hệ thống nên hỗ trợ định dạng bài tập tự luận, trắc nghiệm, hoặc bài tập nhóm.
+   * Có thể tích hợp tính năng tự động chấm điểm với bài trắc nghiệm.
+ 
+📢 Use Case: Gửi thông báo
+🎯 Mục tiêu
+Giảng viên gửi thông báo đến toàn bộ học viên trong lớp để cập nhật thông tin, nhắc nhở hoặc chia sẻ tài liệu.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Thông báo lớp học".
+	2
+	Nhấn "Tạo thông báo mới".
+	3
+	Nhập tiêu đề, nội dung thông báo, đính kèm file (nếu có).
+	4
+	Chọn đối tượng nhận: toàn bộ học viên của khóa học.
+	5
+	Nhấn "Gửi".
+	6
+	Hệ thống gửi thông báo qua email hoặc hiển thị trong giao diện học viên.
+	📌 Ghi chú bổ sung
+   * Các chức năng này nên được tích hợp trong một dashboard giảng viên dễ sử dụng.
+   * Hệ thống nên hỗ trợ lọc theo nhóm học viên, trạng thái học, hoặc thời gian nộp bài.
+   * Thông báo nên có lịch sử gửi và trạng thái đã đọc.
+Admin
+ Use Case: Quản lý người dùng & Phân quyền
+ Mục tiêu
+Cho phép quản trị viên kiểm soát toàn bộ tài khoản người dùng trên hệ thống, bao gồm việc chỉnh sửa thông tin, phân quyền truy cập và quản lý trạng thái tài khoản.
+ Tác nhân chính
+   * Admin (Quản trị viên): Người có quyền cao nhất trong hệ thống, thực hiện các thao tác quản lý và phân quyền người dùng.
+📋 Điều kiện tiên quyết
+   * Admin đã đăng nhập vào hệ thống.
+   * Hệ thống có danh sách người dùng và cơ chế phân quyền rõ ràng.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Quản lý người dùng" từ dashboard.
+	2
+	Hệ thống hiển thị danh sách người dùng: tên, email, vai trò, trạng thái.
+	3
+	Admin có thể thực hiện các thao tác:
+	
+
+	- Tìm kiếm và lọc người dùng theo vai trò hoặc trạng thái
+	
+
+	- Xem chi tiết hồ sơ người dùng
+	
+
+	- Chỉnh sửa thông tin cá nhân (tên, email, ảnh đại diện)
+	
+
+	- Thay đổi vai trò người dùng: học viên ↔ giảng viên ↔ admin
+	
+
+	- Gán quyền truy cập theo nhóm chức năng (ví dụ: chỉ được tạo khóa học, không được duyệt bài tập)
+	
+
+	- Khóa/Mở khóa tài khoản
+	
+
+	- Xóa tài khoản hoặc khôi phục
+	
+
+	- Tạo tài khoản mới với vai trò cụ thể
+	4
+	Hệ thống ghi nhận thay đổi và cập nhật dữ liệu người dùng.
+	5
+	Hiển thị thông báo xác nhận thao tác thành công.
+	 Luồng thay thế
+   * Người dùng không tồn tại: Hiển thị thông báo lỗi.
+   * Không đủ quyền: Ngăn thao tác và hiển thị cảnh báo.
+   * Lỗi hệ thống: Cho phép thử lại hoặc liên hệ hỗ trợ.
+ Điều kiện sau cùng
+   * Người dùng được cập nhật thông tin và vai trò chính xác.
+   * Hệ thống phản ánh đúng quyền truy cập và trạng thái tài khoản.
+Use Case: Duyệt và quản lý khóa học
+ Mục tiêu
+Cho phép quản trị viên kiểm duyệt nội dung khóa học trước khi công khai, đồng thời quản lý toàn bộ vòng đời của các khóa học trên hệ thống.
+ Tác nhân chính
+   * Admin (Quản trị viên): Người có quyền kiểm soát và phê duyệt nội dung khóa học.
+ Điều kiện tiên quyết
+   * Admin đã đăng nhập vào hệ thống.
+   * Có ít nhất một khóa học đang chờ duyệt hoặc đã được tạo bởi giảng viên.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Duyệt khóa học" hoặc "Quản lý khóa học".
+	2
+	Hệ thống hiển thị danh sách các khóa học theo trạng thái: Chờ duyệt, Đã duyệt, Bị từ chối, Đã xuất bản, Đã ẩn.
+	3
+	Admin chọn một khóa học để xem chi tiết:
+	
+
+	- Tên khóa học, mô tả, ảnh đại diện
+	
+
+	- Nội dung bài giảng, bài tập, video, tài liệu
+	
+
+	- Thông tin giảng viên
+	
+
+	- Giá bán, chủ đề, cấp độ
+	4
+	Admin thực hiện một trong các hành động:
+	
+
+	- Duyệt khóa học (cho phép xuất bản)
+	
+
+	- Từ chối khóa học (kèm lý do)
+	
+
+	- Chỉnh sửa thông tin (nếu cần)
+	
+
+	- Ẩn / Khóa khóa học (tạm thời không hiển thị)
+	
+
+	- Xóa khóa học (vĩnh viễn)
+	5
+	Hệ thống cập nhật trạng thái khóa học và thông báo cho giảng viên.
+	 Luồng thay thế
+   * Khóa học không hợp lệ: Admin từ chối và ghi rõ lý do để giảng viên chỉnh sửa.
+   * Lỗi hệ thống khi duyệt: Hiển thị thông báo lỗi và cho phép thử lại.
+   * Không có khóa học chờ duyệt: Hiển thị thông báo "Không có khóa học nào cần duyệt".
+ Điều kiện sau cùng
+   * Khóa học được duyệt và hiển thị công khai cho học viên (nếu được phê duyệt).
+   * Hệ thống ghi nhận trạng thái và lịch sử xử lý khóa học.
+ Ghi chú bổ sung
+   * Có thể tích hợp bộ lọc theo chủ đề, giảng viên, trạng thái, ngày tạo.
+   * Nên có tính năng ghi log hoạt động duyệt khóa học để đảm bảo minh bạch.
+   * Có thể hỗ trợ gửi phản hồi tự động cho giảng viên khi bị từ chối.
+   * Hệ thống nên hỗ trợ phân quyền duyệt khóa học theo chuyên ngành nếu có nhiều admin.
+ Use Case: Thống kê toàn hệ thống
+🎯 Mục tiêu
+Cung cấp cho quản trị viên cái nhìn tổng thể về hoạt động của nền tảng, bao gồm người dùng, khóa học, doanh thu, và mức độ tương tác.
+👤 Tác nhân chính
+   * Admin (Quản trị viên): Người giám sát và điều hành toàn bộ hệ thống.
+📋 Điều kiện tiên quyết
+   * Admin đã đăng nhập vào hệ thống.
+   * Hệ thống có dữ liệu hoạt động từ người dùng, giảng viên, khóa học, và giao dịch.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Thống kê hệ thống" từ dashboard quản trị.
+	2
+	Hệ thống hiển thị các chỉ số tổng quan:
+	
+
+	- Tổng số người dùng (học viên, giảng viên, admin)
+	
+
+	- Số lượng khóa học đang hoạt động, đã duyệt, bị ẩn
+	
+
+	- Tổng doanh thu toàn hệ thống, doanh thu cho gv.
+	
+
+	- Số lượt đăng ký khóa học theo thời gian
+	
+
+	- Tỷ lệ hoàn thành khóa học trung bình
+	
+
+	- Số lượt truy cập hệ thống theo ngày/tuần/tháng
+	
+
+	- Số lượng bài tập đã nộp và được chấm
+	
+
+	- Tỷ lệ tương tác (bình luận, hỏi đáp, đánh giá)
+	3
+	Admin có thể lọc theo thời gian, chủ đề, nhóm người dùng hoặc trạng thái khóa học.
+	4
+	Có thể xuất dữ liệu thống kê ra file (Excel/PDF) để báo cáo hoặc phân tích.
+	 Luồng thay thế
+   * Không có dữ liệu: Hiển thị thông báo "Chưa có dữ liệu thống kê".
+   * Lỗi tải dữ liệu: Hiển thị thông báo lỗi và cho phép thử lại.
+ Điều kiện sau cùng
+   * Admin có thể theo dõi hiệu suất hệ thống, phát hiện vấn đề, và đưa ra quyết định cải tiến.
+   * Dữ liệu được cập nhật chính xác và có thể sử dụng cho báo cáo nội bộ.
+ Ghi chú bổ sung
+   * Nên hỗ trợ biểu đồ trực quan: cột, tròn, đường, heatmap.
+   * Có thể tích hợp cảnh báo tự động nếu phát hiện bất thường (ví dụ: tỷ lệ bỏ học tăng đột biến).
+   * Hệ thống nên hỗ trợ so sánh theo kỳ, theo nhóm người dùng, hoặc theo chuyên ngành.
+Use Case: Quản lý nội dung (Content Management)
+Mục tiêu
+Cho phép quản trị viên kiểm soát, cập nhật và tổ chức các nội dung hiển thị trên hệ thống, bao gồm danh mục khóa học, trang tĩnh và blog/tin tức.
+ Tác nhân chính
+   * Admin (Quản trị viên): Người có quyền chỉnh sửa và cấu hình nội dung hệ thống.
+ Điều kiện tiên quyết
+   * Admin đã đăng nhập vào hệ thống.
+   * Hệ thống có module quản lý nội dung.
+ Luồng sự kiện chính
+1.  Quản lý danh mục khóa học (Categories)
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Danh mục khóa học".
+	2
+	Xem danh sách danh mục hiện có.
+	3
+	Thêm, sửa, xóa danh mục (ví dụ: CNTT, Kinh tế, Ngoại ngữ).
+	4
+	Gán danh mục cho các khóa học tương ứng.
+	2.  Quản lý trang nội dung tĩnh (Static Pages) +  Quản lý Blog / Tin tức
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Bài viết".
+	2
+	Chọn trang cần chỉnh sửa (Giới thiệu, Liên hệ, Chính sách…).
+	3
+	Cập nhật nội dung văn bản, hình ảnh, liên kết.
+	4
+	Lưu và xuất bản trang để hiển thị cho người dùng.
+	 
+1
+	Admin truy cập mục "Blog/Tin tức".
+	2
+	Xem danh sách bài viết đã đăng.
+	3
+	Tạo bài viết mới: tiêu đề, nội dung, ảnh minh họa, danh mục.
+	4
+	Chỉnh sửa hoặc xóa bài viết cũ.
+	5
+	Xuất bản bài viết để hiển thị trên trang chủ hoặc mục tin tức.
+	 Điều kiện sau cùng
+   * Nội dung hệ thống được cập nhật đầy đủ, chính xác và hiển thị đúng vị trí.
+   * Người dùng có thể truy cập các danh mục, trang tĩnh và bài viết blog dễ dàng.
+ Ghi chú bổ sung
+   * Nên có tính năng lưu nháp và lịch sử chỉnh sửa cho từng nội dung.
+   * Có thể tích hợp trình soạn thảo WYSIWYG để dễ dàng định dạng văn bản.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+e Case: Đăng ký (Sign Up)
+ 
+2️ Mục tiêu
+Cho phép người dùng mới (học sinh, giảng viên) tạo tài khoản trên hệ thống để có thể đăng nhập và sử dụng các chức năng học tập / giảng dạy.
+ 
+ 
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+   * Nếu đăng ký thành công:
+→ Hệ thống tạo tài khoản mới, lưu thông tin vào cơ sở dữ liệu,
+→ Gửi email xác nhận (nếu có).
+   * Người dùng có thể đăng nhập ngay sau khi kích hoạt tài khoản.
+________________
+
+
+6️. Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng chọn chức năng “Đăng ký” trên giao diện chính.
+	Hệ thống hiển thị form đăng ký gồm các trường: Họ tên, Email, Mật khẩu, Xác nhận mật khẩu, Vai trò (Học sinh / Giảng viên).
+	2
+	Người dùng nhập thông tin cá nhân và chọn nút “Đăng ký”.
+	Hệ thống kiểm tra tính hợp lệ của dữ liệu: không để trống, email đúng định dạng, mật khẩu trùng khớp.
+	3
+	Hệ thống kiểm tra trùng lặp email trong cơ sở dữ liệu.
+	Nếu email chưa tồn tại, chuyển sang bước 4.
+	4
+	Hệ thống tạo tài khoản mới và lưu thông tin vào cơ sở dữ liệu.
+	
+
+	5
+	Hệ thống gửi email xác thực (nếu có) đến địa chỉ email người dùng.
+	
+
+	6
+	Hệ thống hiển thị thông báo “Đăng ký thành công! Vui lòng xác nhận email để kích hoạt tài khoản.”
+	Người dùng có thể quay lại trang đăng nhập.
+	________________
+
+
+7️. Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Nhập thiếu thông tin
+	Một hoặc nhiều trường bị bỏ trống.
+	Hiển thị thông báo: “Vui lòng nhập đầy đủ thông tin.”
+	A2. Email không hợp lệ
+	Email sai định dạng.
+	Hiển thị: “Email không hợp lệ.”
+	A3. Mật khẩu xác nhận không khớp
+	Mật khẩu và xác nhận mật khẩu khác nhau.
+	Hiển thị: “Mật khẩu không trùng khớp.”
+	A4. Email đã tồn tại
+	Email đã được đăng ký trước đó.
+	Hiển thị: “Email này đã được sử dụng.”
+	A5. Lỗi hệ thống
+	Không kết nối được database hoặc server.
+	Hiển thị: “Có lỗi xảy ra, vui lòng thử lại sau.”
+	________________
+
+
+8️. Yêu cầu đặc biệt (Special Requirements)
+      * Mật khẩu phải được mã hóa (hash) khi lưu.
+      * Có thể sử dụng xác minh email (email verification) để kích hoạt tài khoản.
+      * Hệ thống cần xác thực độ mạnh của mật khẩu (ít nhất 8 ký tự, có chữ hoa, chữ thường, số)(tùy chọn)
+      * Giao diện cần hiển thị thông báo rõ ràng khi có lỗi.
+      * Có thể hỗ trợ đăng ký nhanh bằng Google/Facebook.
+________________
+
+
+9️. Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	User
+	Chứa thông tin tài khoản: userId, fullName, email, passwordHash, role, status, createdAt
+	VerificationToken (tùy chọn)
+	Dùng để xác minh email hoặc kích hoạt tài khoản.
+	________________
+
+
+10 Mở rộng (Extension / Future enhancement)
+      * Cho phép xác minh danh tính giảng viên qua giấy tờ (chứng chỉ, CMND,...).
+ Use Case: Quên mật khẩu
+ Mục tiêu
+Cho phép người dùng khôi phục quyền truy cập tài khoản khi không nhớ mật khẩu.
+ Tác nhân chính
+      * Người dùng (User): Người đã đăng ký tài khoản nhưng không thể đăng nhập do quên mật khẩu.
+ Điều kiện tiên quyết
+      * Người dùng đã từng đăng ký tài khoản với email hoặc số điện thoại hợp lệ.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang đăng nhập và nhấn vào liên kết "Quên mật khẩu".
+	2
+	Hệ thống hiển thị biểu mẫu yêu cầu nhập email hoặc số điện thoại đã đăng ký.
+	3
+	Người dùng nhập thông tin và gửi yêu cầu.
+	4
+	Hệ thống kiểm tra thông tin và gửi mã xác thực hoặc liên kết đặt lại mật khẩu qua email/SMS.
+	5
+	Người dùng truy cập liên kết hoặc nhập mã xác thực.
+	6
+	Hệ thống hiển thị biểu mẫu đặt lại mật khẩu mới.
+	7
+	Người dùng nhập mật khẩu mới và xác nhận.
+	8
+	Hệ thống cập nhật mật khẩu và hiển thị thông báo "Đặt lại mật khẩu thành công".
+	9
+	Người dùng có thể đăng nhập bằng mật khẩu mới.
+	 Luồng thay thế
+      * Email/SĐT không tồn tại: Hiển thị thông báo lỗi "Thông tin không hợp lệ".
+      * Mã xác thực hết hạn hoặc sai: Hiển thị thông báo lỗi và cho phép gửi lại mã.
+ Điều kiện sau cùng
+      * Người dùng có thể đăng nhập lại bằng mật khẩu mới.
+      * Hệ thống ghi nhận thay đổi và bảo mật tài khoản.
+ Ghi chú bổ sung
+      * Nên có giới hạn số lần gửi mã xác thực để tránh spam.
+      * Mật khẩu mới nên được kiểm tra độ mạnh (ít nhất 8 ký tự, có chữ hoa, số, ký tự đặc biệt).
+      * Có thể tích hợp xác thực hai bước (2FA) để tăng bảo mật.
+ 
+Use Case: Đăng nhập
+________________
+
+
+1️ Tên use case
+Đăng nhập (Login)
+________________
+
+
+2️. Mục tiêu
+Cho phép người dùng (học sinh, giảng viên hoặc quản trị viên) truy cập vào hệ thống khóa học trực tuyến bằng tên đăng nhập (email hoặc username) và mật khẩu hợp lệ.
+→ Xác thực danh tính để đảm bảo quyền truy cập đúng người, đúng vai trò.
+________________
+
+
+3️. Tác nhân (Actor)
+      * Học sinh (Student)
+      * Giảng viên (Instructor)
+      * Quản trị viên (Admin)
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+      * Nếu đăng nhập thành công: Người dùng được chuyển đến trang chủ tương ứng với vai trò (VD: Học sinh → Trang khóa học, Admin → Trang quản trị).
+      * Nếu đăng nhập thất bại: Hệ thống hiển thị thông báo lỗi và yêu cầu nhập lại.
+________________
+
+
+6️. Luồng sự kiện chính (Main Flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng truy cập vào trang đăng nhập.
+	Hệ thống hiển thị form đăng nhập gồm các trường: Email/Tên đăng nhập, Mật khẩu, và nút “Đăng nhập”.
+	2
+	Người dùng nhập thông tin đăng nhập (username/email và password).
+	
+
+	3
+	Người dùng nhấn nút “Đăng nhập”.
+	Hệ thống nhận thông tin và gửi yêu cầu xác thực đến máy chủ.
+	4
+	Hệ thống kiểm tra thông tin trong cơ sở dữ liệu.
+	
+
+	5
+	Nếu thông tin hợp lệ, hệ thống xác thực thành công.
+	Hệ thống tạo session cho người dùng, lưu trạng thái đăng nhập.
+	6
+	Hệ thống chuyển hướng đến trang chính tương ứng (VD: Trang học viên, trang quản lý,...).
+	Giao diện cập nhật với tên người dùng và các chức năng theo quyền.
+	________________
+
+
+7️. Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Sai thông tin đăng nhập
+	Username hoặc mật khẩu không đúng.
+	Hiển thị thông báo: “Tên đăng nhập hoặc mật khẩu không chính xác.”
+	A2. Tài khoản bị khóa hoặc chưa kích hoạt
+	Tài khoản chưa xác nhận email hoặc bị admin khóa.
+	Hiển thị thông báo: “Tài khoản của bạn chưa được kích hoạt hoặc đã bị khóa.”
+	A3. Quên mật khẩu
+	Người dùng không nhớ mật khẩu.
+	Hệ thống cung cấp liên kết “Quên mật khẩu” → dẫn đến trang khôi phục mật khẩu.
+	A4. Hệ thống lỗi hoặc mất kết nối
+	Không thể truy cập cơ sở dữ liệu hoặc server xác thực.
+	Hiển thị thông báo: “Có lỗi xảy ra, vui lòng thử lại sau.”
+	________________
+
+
+8 Yêu cầu đặc biệt (Special Requirements)
+      * Có tùy chọn “Nhớ đăng nhập” (Remember me
+      * Hỗ trợ Đăng nhập bằng Google(SDT).
+________________
+
+
+9️. Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	User
+	Chứa thông tin tài khoản: userId, username, email, passwordHash, role, status
+	Session / Token
+	Lưu thông tin phiên đăng nhập hoặc token xác thực (JWT nếu dùng API).
+	________________
+
+
+ Mở rộng (Extension / Future enhancement)
+      * Hỗ trợ xác thực hai lớp (2FA) qua email hoặc OTP.
+      * Ghi nhận lịch sử đăng nhập (thời gian, IP, thiết bị).
+Use Case: Đăng xuất
+ Mục tiêu
+Cho phép người dùng thoát khỏi phiên đăng nhập hiện tại để bảo vệ thông tin cá nhân và tài khoản.
+ Tác nhân chính
+      * Người dùng (User): Học viên đã đăng nhập vào hệ thống.
+ Điều kiện tiên quyết
+      * Người dùng đang trong trạng thái đăng nhập.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng nhấn vào biểu tượng tài khoản hoặc menu người dùng.
+	2
+	Chọn tùy chọn "Đăng xuất".
+	3
+	Hệ thống xác nhận hành động và tiến hành hủy phiên đăng nhập.
+	4
+	Người dùng được chuyển về trang chủ hoặc trang đăng nhập.
+	5
+	Hệ thống xóa token phiên và ngăn truy cập vào các chức năng yêu cầu đăng nhập.
+	 Luồng thay thế
+      * Lỗi kết nối hoặc hệ thống không phản hồi: Hiển thị thông báo lỗi và cho phép thử lại.
+      * Người dùng đóng trình duyệt mà không đăng xuất: Phiên có thể vẫn tồn tại nếu chưa hết hạn, tùy vào thiết kế bảo mật.
+ Điều kiện sau cùng
+      * Người dùng không còn đăng nhập vào hệ thống.
+      * Các chức năng yêu cầu xác thực sẽ bị khóa cho đến khi đăng nhập lại.
+ Ghi chú bổ sung
+      * Nên hiển thị thông báo "Bạn đã đăng xuất thành công".
+      * Có thể tích hợp tính năng tự động đăng xuất sau một khoảng thời gian không hoạt động.
+      * Đăng xuất nên xóa toàn bộ dữ liệu phiên khỏi trình duyệt (cookies, localStorage nếu có).
+ 
+Use Case: Học sinh/Giáo viên thay đổi thông tin tài khoản cá nhân
+ Mục tiêu
+Cho phép người dùng (học sinh hoặc giáo viên) xem và cập nhật thông tin cá nhân của chính mình, như tên, email, mật khẩu, ảnh đại diện…
+🔄 Luồng chính (Main Flow)
+1. Xem thông tin tài khoản
+      * Người dùng chọn “Tài khoản của tôi”(hoặc phần thông tin tk góc trên bên phải màn hình(thay thế cho nút Đăng nhập, Đăng ký)
+      * Hệ thống hiển thị thông tin: họ tên, email, vai trò, ảnh đại diện(nếu có)
+2. Cập nhật thông tin cá nhân
+      * Người dùng nhấn “Chỉnh sửa”
+      * Có thể thay đổi: họ tên, số điện thoại, ảnh đại diện
+      * Nhấn “Lưu” → hệ thống cập nhật vào CSDL
+3. Đổi mật khẩu
+      * Người dùng nhập mật khẩu cũ, mật khẩu mới, xác nhận lại
+      * Hệ thống kiểm tra và cập nhật nếu hợp lệ
+🔁 Luồng phụ (Alternate Flows)
+      * Mật khẩu cũ không đúng: Hệ thống báo lỗi và yêu cầu nhập lại
+      * Email không được phép thay đổi: Nếu email là định danh cố định, hệ thống không cho sửa
+ 
+Use Case: Trang chủ (Home Page)
+ 
+ 
+2️ Mục tiêu
+Hiển thị toàn bộ thông tin tổng quan và các chức năng chính của hệ thống khóa học trực tuyến cho người dùng (học sinh, khách chưa đăng nhập).
+→ Giúp người dùng dễ dàng truy cập, tìm kiếm khóa học, và điều hướng đến các tính năng khác như đăng nhập, đăng ký, xem khóa học, tin tức, hỗ trợ,…
+________________
+
+
+3️ Tác nhân (Actor)
+      * Khách (Guest) — người dùng chưa đăng nhập.
+      * Học sinh (Student) — người đã đăng nhập.
+________________
+
+
+5️ Hậu điều kiện (Postcondition)
+      * Người dùng có thể chọn điều hướng sang các trang khác (đăng nhập, đăng ký, xem khóa học, thống kê,...).
+________________
+
+
+6️ Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của người dùng
+	Phản hồi của hệ thống
+	1
+	Người dùng truy cập vào đường dẫn chính của website.
+	Hệ thống tải trang chủ.
+	2
+	Hệ thống xác định trạng thái người dùng (chưa đăng nhập / đã đăng nhập).
+	
+
+	3
+	Hệ thống hiển thị giao diện trang chủ tương ứng:
+	
+
+	
+
+	- Nếu chưa đăng nhập: hiển thị danh sách khóa học nổi bật, giới thiệu nền tảng, nút “Đăng nhập” và “Đăng ký”, các mục khác chuyển hướng đến trang Đăng nhập kèm thông báo: “Vui lòng đăng nhập để tiếp tục.”.
+	
+
+	
+
+	- Nếu đã đăng nhập: hiển thị tài khoản thay cho nút đăng nhập, khóa học của tôi(all, đang học, học xong (có bộ lọc)), , thống kê, giỏ hàng, bài tập.
+	
+
+	4
+	Người dùng có thể tìm kiếm khóa học, chọn danh mục, hoặc xem chi tiết khóa học trong trang chủ.
+	Hệ thống điều hướng đến trang kết quả tìm kiếm hoặc chi tiết khóa học.
+	5
+	Người dùng có thể chuyển sang các trang khác (đăng nhập, đăng ký, thống kê, giỏ hàng, v.v.).
+	Hệ thống điều hướng đến trang tương ứng.
+	
+
+
+________________
+
+
+7️ Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Lỗi tải dữ liệu khóa học
+	Dữ liệu khóa học không hiển thị được.
+	Hiển thị thông báo: “Không thể tải dữ liệu khóa học, vui lòng thử lại sau.”
+	A2. Người dùng chưa đăng nhập nhưng bấm vào chức năng yêu cầu đăng nhập
+	VD: Xem “Khóa học của tôi”.
+	Hệ thống chuyển hướng đến trang Đăng nhập kèm thông báo: “Vui lòng đăng nhập để tiếp tục.”
+	A3. Lỗi kết nối hệ thống
+	Trang chủ không tải được do lỗi server hoặc mạng.
+	Hiển thị thông báo: “Trang không khả dụng. Vui lòng thử lại sau.”
+	________________
+
+
+8️ Yêu cầu đặc biệt (Special Requirements)
+      * Có giao diện thân thiện, trực quan (hiển thị banner, menu, danh mục khóa học).
+      * Có thanh tìm kiếm khóa học hoạt động thời gian thực (autocomplete).
+      * Hiển thị nội dung động: khóa học mới, khóa học nổi bật, đánh giá, giảng viên tiêu biểu(tùy chọn).
+      * Có liên kết đến các trang chính: Giới thiệu, Liên hệ, Hỗ trợ
+________________
+      * 9️ Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	Course
+	Chứa danh sách khóa học (tên, giảng viên, giá, mô tả, lượt xem).
+	User
+	Dùng để xác định người dùng hiện tại đã đăng nhập hay chưa.
+	Category
+	Danh mục khóa học để hiển thị trên menu hoặc bộ lọc.
+	Banner / News
+	Thông tin quảng cáo, tin tức hiển thị ở phần đầu trang.
+	________________
+
+
+10. Mở rộng (Extension / Future enhancement)
+      * Hiển thị thông báo hoặc khuyến mãi đặc biệt.
+Use Case: Tìm kiếm và lọc khóa học
+🎯 Mục tiêu
+Giúp người dùng dễ dàng tìm thấy các khóa học phù hợp với nhu cầu thông qua chức năng tìm kiếm và bộ lọc theo các tiêu chí như chủ đề, giá cả, cấp độ, giáo viên.
+👤 Tác nhân chính
+      * Người dùng (User): Học viên đang tìm kiếm khóa học phù hợp.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang danh sách khóa học(hoặc trang chủ nếu k có trang ds KH riêng) hoặc thanh tìm kiếm.
+	2
+	Người dùng nhập từ khóa tìm kiếm (ví dụ: "thiết kế đồ họa", "Excel nâng cao").
+	3
+	Hệ thống hiển thị kết quả tìm kiếm sơ bộ.
+	4
+	Người dùng sử dụng bộ lọc để thu hẹp kết quả theo các tiêu chí:
+	
+
+	- Chủ đề: CNTT, Kinh doanh, Ngoại ngữ, Nghệ thuật...
+	
+
+	- Giá cả: Miễn phí, dưới 500K, từ 500K–1 triệu, trên 1 triệu...
+	
+
+	- Cấp độ: Cơ bản, Trung cấp, Nâng cao
+	
+
+	- Giáo viên: Tên giảng viên hoặc tổ chức đào tạo
+	5
+	Hệ thống cập nhật kết quả theo bộ lọc đã chọn.
+	6
+	Người dùng xem chi tiết khóa học hoặc thêm vào giỏ hàng.
+	 Luồng thay thế
+      * Không có kết quả phù hợp: Hiển thị thông báo "Không tìm thấy khóa học phù hợp" và gợi ý các chủ đề liên quan.
+      * Người dùng không nhập từ khóa: Cho phép duyệt theo danh mục hoặc bộ lọc trước.
+Ghi chú bổ sung
+      * Có thể tích hợp tính năng gợi ý khóa học dựa trên lịch sử học tập hoặc hành vi người dùng.
+      * Bộ lọc nên có khả năng kết hợp nhiều tiêu chí cùng lúc.
+      * Hệ thống nên hỗ trợ tìm kiếm tiếng Việt có dấu và không dấu.
+ 
+Use Case: Thêm vào giỏ hàng
+ Mục tiêu
+Cho phép người dùng thêm khóa học mong muốn vào giỏ hàng để chuẩn bị thanh toán hoặc lưu lại để mua sau.
+ Tác nhân chính
+      * Người dùng (User): Học viên đang duyệt các khóa học trên nền tảng.
+ Điều kiện tiên quyết
+      * Người dùng đã đăng nhập vào hệ thống.
+Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng duyệt danh sách khóa học hoặc trang chi tiết khóa học.
+	2
+	Người dùng nhấn nút "Thêm vào giỏ hàng".
+	3
+	Hệ thống kiểm tra khóa học đã có trong giỏ hàng chưa.
+	4
+	Nếu chưa có, hệ thống thêm khóa học vào giỏ hàng.
+	5
+	Hiển thị thông báo xác nhận "Đã thêm vào giỏ hàng".
+	6
+	Cập nhật biểu tượng giỏ hàng (số lượng khóa học).
+	 Luồng thay thế
+      * Khóa học đã có trong giỏ hàng: Hiển thị thông báo "Khóa học đã có trong giỏ hàng".
+      * Người dùng chưa đăng nhập: Yêu cầu đăng nhập trước khi thêm vào giỏ hàng.
+ Điều kiện sau cùng
+      * Khóa học được lưu trong giỏ hàng của người dùng (tạm thời hoặc vĩnh viễn tùy thiết kế).
+      * Người dùng có thể truy cập giỏ hàng để thanh toán hoặc chỉnh sửa.
+Use Case: Thanh toán
+ Mục tiêu
+Cho phép người dùng hoàn tất việc mua các khóa học đã chọn trong giỏ hàng thông qua các phương thức thanh toán được hỗ trợ.
+ Tác nhân chính
+      * Người dùng (User): Học viên đã thêm khóa học vào giỏ hàng và muốn thanh toán.
+Điều kiện tiên quyết
+      * Người dùng đã đăng nhập.
+      * Giỏ hàng có ít nhất một khóa học hợp lệ.
+      * Hệ thống có kết nối với cổng thanh toán.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập giỏ hàng và nhấn nút "Thanh toán".
+	2
+	Hệ thống hiển thị trang thanh toán với danh sách khóa học, tổng tiền và các phương thức thanh toán.
+	3
+	Người dùng chọn phương thức thanh toán (ví dụ: thẻ tín dụng, ví điện tử, chuyển khoản).
+	4
+	Người dùng nhập thông tin thanh toán (nếu cần).
+	5
+	Người dùng xác nhận thanh toán.
+	6
+	Hệ thống gửi yêu cầu đến cổng thanh toán.
+	7
+	Cổng thanh toán phản hồi kết quả (thành công/thất bại).
+	
+
+	Nếu thành công, hệ thống:
+	      * Cập nhật trạng thái đơn hàng.
+      * Cấp quyền truy cập khóa học cho người dùng.
+      * Gửi email/xác nhận đơn hàng. | 9 | Hiển thị thông báo "Thanh toán thành công". |
+ Luồng thay thế
+      * Thanh toán thất bại: Hiển thị thông báo lỗi và cho phép người dùng thử lại hoặc chọn phương thức khác.
+      * Giỏ hàng trống: Không cho phép truy cập trang thanh toán, hiển thị thông báo "Giỏ hàng của bạn đang trống".
+      * Thông tin thanh toán không hợp lệ: Hiển thị lỗi và yêu cầu nhập lại.
+ Điều kiện sau cùng
+      * Người dùng đã thanh toán thành công và có quyền truy cập vào các khóa học đã mua.
+      * Hệ thống ghi nhận đơn hàng và lưu trữ thông tin giao dịch.
+ Ghi chú bổ sung
+      * Có thể tích hợp các cổng thanh toán như: Momo, ZaloPay, VNPAY, Stripe, PayPal.
+      * Hệ thống nên hỗ trợ hoàn tiền và xử lý lỗi giao dịch.
+      * Có thể thêm tính năng mã giảm giá hoặc ưu đãi trong quá trình thanh toán.
+Use Case: Khóa học của tôi
+ Mục tiêu
+Cho phép người dùng xem và truy cập các khóa học mà họ đã đăng ký, đang học hoặc đã hoàn thành.
+ Tác nhân chính
+      * Người dùng (User): Học viên đã đăng ký một hoặc nhiều khóa học.
+ Điều kiện tiên quyết
+      * Người dùng đã đăng nhập vào tài khoản cá nhân.
+      * Người dùng đã đăng ký ít nhất một khóa học (miễn phí hoặc trả phí).
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập trang "Khóa học của tôi" từ menu hoặc trang chủ.
+	2
+	Hệ thống hiển thị danh sách các khóa học đã đăng ký, kèm theo trạng thái: Đang học, Chưa bắt đầu, Đã hoàn thành.
+	3
+	Người dùng có thể:
+	
+
+	- Nhấn vào khóa học để tiếp tục học.
+	
+
+	- Xem tiến độ học tập (ví dụ: 40% hoàn thành).
+	
+
+	- Lọc theo: Tất cả, Đã hoàn thành, đang học.
+	
+
+	- Đánh giá khóa học sau khi hoàn thành.
+	4
+	Hệ thống ghi nhận các hành động và cập nhật dữ liệu học tập.
+	🔄 Luồng thay thế
+      * Không có khóa học nào: Hiển thị thông báo "Bạn chưa đăng ký khóa học nào" và gợi ý các khóa học nổi bật.
+      * Khóa học bị xóa hoặc không còn tồn tại: Hiển thị thông báo lỗi và ẩn khỏi danh sách.
+✅ Điều kiện sau cùng
+      * Người dùng có thể truy cập và tiếp tục học các khóa học đã đăng ký.
+      * Hệ thống cập nhật tiến độ học tập và trạng thái hoàn thành.
+📌 Ghi chú bổ sung
+      * Có thể thêm bộ lọc theo trạng thái (Tất cả, Đang học, Đã hoàn thành).
+      * Hỗ trợ tìm kiếm trong danh sách khóa học cá nhân.
+      * Có thể tích hợp thông báo nhắc học hoặc gợi ý khóa học tiếp theo.
+ 
+Use Case: Đánh giá khóa học
+ Mục tiêu
+Cho phép học viên gửi đánh giá về khóa học đã tham gia, bao gồm số sao, nhận xét.
+ Tiền điều kiện
+      * Học viên đã đăng ký khóa học.
+      * Học viên đã đăng nhập vào hệ thống.
+ Luồng chính (Main Flow)
+1. Truy cập chức năng đánh giá
+      * Học viên chọn “Đánh giá khóa học” trang chi tiết khóa học.
+2. Nhập thông tin đánh giá
+      * Chọn điểm số (ví dụ: 1–5 sao)
+      * Nhập nhận xét (tùy chọn)
+      * Chọn các tiêu chí: nội dung, giảng viên, tài liệu, trải nghiệm
+3. Gửi đánh giá
+      * Hệ thống xác nhận và lưu vào cơ sở dữ liệu
+      * Hiển thị thông báo “Đánh giá thành công”
+ Luồng phụ (Alternate Flows)
+      * Chưa đăng ký khóa học: hệ thống không cho phép đánh giá
+      * Đã đánh giá rồi: hệ thống hiển thị đánh giá cũ, cho phép sửa nếu cần
+ Dữ liệu đánh giá lưu trữ
+Trường
+	Kiểu
+	Ghi chú
+	ID đánh giá
+	int
+	Tự động tăng
+	ID học viên
+	int
+	Người đánh giá
+	ID khóa học
+	int
+	Khóa học được đánh giá
+	Điểm số
+	int
+	1–5
+	Nhận xét
+	text
+	Tùy chọn
+	Ngày đánh giá
+	date
+	Tự động ghi nhận
+	 
+	 
+	 
+	Use Case: Nộp bài (Submit Assignment)
+ 
+________________
+
+
+2️ Mục tiêu
+Cho phép học sinh nộp bài tập, bài kiểm tra hoặc dự án cho khóa học mà mình đang tham gia — đúng hạn, đúng định dạng và có thể kiểm tra lại sau khi nộp.
+→ Mục tiêu là giúp hệ thống thu nhận bài nộp, ghi nhận thời gian, và chuyển đến giảng viên để chấm điểm.
+________________
+
+
+3️. Tác nhân (Actor)
+      * Học sinh (Student) – người thực hiện việc nộp bài.
+      * Giảng viên (Instructor) (liên quan gián tiếp) – người chấm bài sau khi học sinh nộp.
+________________
+
+
+4️ Điều kiện tiên quyết (Precondition)
+      * Bài tập chưa hết hạn nộp (deadline hợp lệ).
+________________
+
+
+5️ Hậu điều kiện (Postcondition)
+      * Hệ thống ghi nhận thời gian nộp, trạng thái bài nộp, và liên kết với tài khoản học sinh.
+      * Giảng viên có thể xem và chấm điểm bài nộp.
+________________
+
+
+6️ Luồng sự kiện chính (Main Flow)
+Bước
+	Hành động của học sinh
+	Phản hồi của hệ thống
+	1
+	Học sinh đăng nhập vào hệ thống và truy cập mục “Bài tập” của khóa học.
+	Hệ thống hiển thị danh sách bài tập cần nộp cùng thời hạn.
+	2
+	Học sinh chọn bài tập muốn nộp.
+	Hệ thống hiển thị thông tin chi tiết: mô tả, deadline, file mẫu (nếu có).
+	3
+	Học sinh chọn nút “Nộp bài”.
+	Hệ thống hiển thị form upload: chọn file hoặc nhập nội dung trực tiếp.
+	4
+	Học sinh chọn tệp bài làm từ máy tính (hoặc dán nội dung bài viết).
+	Hệ thống xác nhận loại tệp hợp lệ (PDF, DOCX, ZIP, v.v.).
+	5
+	Học sinh nhấn “Gửi bài” để nộp.
+	Hệ thống tải file lên máy chủ, lưu vào thư mục tương ứng với học sinh.
+	6
+	Hệ thống hiển thị thông báo “Nộp bài thành công” kèm thời gian nộp.
+	Hệ thống cập nhật trạng thái: “Đã nộp” và gửi thông báo đến giảng viên.
+	________________
+
+
+7️⃣ Luồng phụ (Alternative / Exception Flows)
+Trường hợp
+	Mô tả
+	Phản hồi của hệ thống
+	A1. Nộp trễ hạn
+	Deadline đã qua.
+	Hệ thống hiển thị cảnh báo “Đã quá hạn nộp bài
+	A2. File không hợp lệ
+	Định dạng tệp không đúng (VD: .exe, .bat).
+	Hiển thị thông báo: “Định dạng tệp không được chấp nhận.”
+	A3. File quá dung lượng cho phép
+	VD: file > 50MB.
+	Hiển thị thông báo: “Dung lượng file vượt quá giới hạn.”
+	A4. Lỗi mạng khi tải lên
+	Kết nối bị gián đoạn trong quá trình upload.
+	Hiển thị thông báo lỗi và yêu cầu nộp lại.
+	A5. Học sinh nộp lại bài
+	Bài trước đó đã nộp.
+	Hệ thống hiển thị tùy chọn “Gửi lại” và ghi nhận phiên bản mới (giữ lịch sử các lần nộp).
+	________________
+
+
+8️⃣ Yêu cầu đặc biệt (Special Requirements)
+      * Dung lượng file tối đa (VD: 50MB).
+      * Cho phép xem trước bài nộp trước khi gửi.
+      * Cho phép nộp lại bài (nếu giảng viên bật tùy chọn này).
+      * Tự động ghi lại thời gian nộp và người nộp.
+      * Gửi thông báo cho giảng viên khi có bài nộp mới.
+      * Bảo đảm tính toàn vẹn file (hash check).
+      * Có thể nộp bài qua drag & drop để tăng trải nghiệm người dùng.
+________________
+
+
+9️⃣ Dữ liệu liên quan (Related Data)
+Bảng dữ liệu
+	Mô tả
+	Assignment
+	Thông tin bài tập: id, title, description, deadline, courseId.
+	Submission
+	Dữ liệu bài nộp: submissionId, assignmentId, studentId, filePath, submitTime, status.
+	User
+	Thông tin học sinh nộp bài.
+	Notification
+	Lưu thông báo gửi đến giảng viên khi có bài nộp.
+	________________
+
+
+🔟 Mở rộng (Extension / Future enhancement)
+      * Cho phép nộp bài nhóm (nhiều học sinh cùng nộp).
+      * Tự động so sánh đạo văn (plagiarism check).
+      * Cho phép giảng viên ghi chú và phản hồi trực tiếp trên bài nộp.
+      * Tích hợp AI tự động chấm bài / nhận diện nội dung sai sót.
+      * Hỗ trợ nộp bài qua API / Google Drive / OneDrive.
+Use Case: Xem điểm (có nên hiện điểm trong phần nộp bài luôn k, gv chấm có điểm thì vào trang nộp bài xem)
+🎯 Mục tiêu
+Cho phép người học xem điểm số và phản hồi từ giảng viên sau khi bài được chấm.
+👤 Tác nhân chính
+      * Người dùng (User): Học viên đã nộp bài hoặc hoàn thành bài kiểm tra.
+📋 Điều kiện tiên quyết
+      * Người dùng đã đăng nhập.
+      * Bài đã được chấm điểm bởi giảng viên.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Người dùng truy cập khóa học và chọn mục "Kết quả" hoặc "Bài đã chấm".
+	2
+	Hệ thống hiển thị danh sách bài đã chấm cùng điểm số.
+	3
+	Người dùng chọn bài để xem chi tiết.
+	4
+	Hệ thống hiển thị: điểm số, nhận xét của giảng viên, file phản hồi (nếu có).
+	5
+	Người dùng có thể gửi phản hồi hoặc yêu cầu chấm lại (nếu được phép).
+	🔄 Luồng thay thế
+      * Chưa có điểm: Hiển thị trạng thái "Đang chấm" hoặc "Chưa có kết quả".
+      * Lỗi hiển thị: Hiển thị thông báo lỗi và hướng dẫn liên hệ hỗ trợ.
+✅ Điều kiện sau cùng
+      * Người dùng xem được điểm và phản hồi, có thể cải thiện bài học hoặc gửi khiếu nại nếu cần.
+ 
+Use Case: Thống kê ( học sinh)
+1️. Tên use case
+Thống kê cho học sinh
+________________
+
+
+2️. Mục tiêu
+Giúp học sinh xem được các thông tin thống kê về quá trình học tập của mình như:
+      * Tổng số khóa học đã đăng ký -> Số khóa học đã hoàn thành
+      * Điểm trung bình, thống kê điểm
+      * Thời gian học gần nhất, tổng thời gian học
+Mục tiêu là giúp học sinh tự đánh giá và cải thiện hiệu quả học tập.
+________________
+
+
+3️. Tác nhân (Actor)
+Học sinh (Student) – người đã đăng nhập vào hệ thống và có tài khoản hợp lệ.
+________________
+
+
+4️. Điều kiện tiên quyết (Precondition)
+      * Học sinh đã đăng nhập vào hệ thống.
+      * Dữ liệu học tập (lịch sử học, kết quả bài kiểm tra, tiến độ...) đã được lưu trong database.
+________________
+
+
+5️. Hậu điều kiện (Postcondition)
+      * Hệ thống hiển thị bảng thống kê học tập cá nhân của học sinh.
+      * Học sinh có thể xem biểu đồ trực quan.
+________________
+
+
+6️. Luồng sự kiện chính (Main flow)
+Bước
+	Hành động của học sinh
+	Phản hồi của hệ thống
+	1
+	Học sinh chọn mục "Thống kê học tập" trong menu tài khoản hoặc trang khóa học.
+	Hệ thống hiển thị giao diện thống kê rỗng và tiến hành truy vấn dữ liệu.
+	2
+	Hệ thống lấy dữ liệu thống kê từ database: danh sách khóa học, tiến độ, điểm số, thời gian học, số bài kiểm tra,...
+	
+
+	3
+	Hệ thống tính toán các chỉ số thống kê: tổng số khóa học, tỉ lệ hoàn thành, điểm trung bình, biểu đồ tiến độ,...
+	
+
+	4
+	Hệ thống hiển thị kết quả thống kê trên giao diện (bảng + biểu đồ).
+	Giao diện có thể gồm: Biểu đồ tròn tiến độ học, cột thời gian học theo tuần, bảng điểm trung bình từng khóa học,...
+	5
+	Học sinh có thể lọc thống kê theo thời gian (tháng, quý, năm) hoặc theo loại khóa học (đồ họa, lập trình, ngoại ngữ,...).
+	Hệ thống cập nhật và hiển thị lại thống kê theo bộ lọc được chọn.
+	6
+	(Tùy chọn) Học sinh chọn “Xuất thống kê” → chọn định dạng (PDF hoặc Excel).
+	Hệ thống tạo file thống kê và cho phép tải xuống.
+	________________
+
+
+7️. Luồng phụ (Alternative flows)
+Trường hợp
+	Mô tả
+	A1. Không có dữ liệu học tập
+	Nếu học sinh chưa tham gia khóa học nào, hệ thống hiển thị thông báo: “Bạn chưa có dữ liệu để thống kê. Hãy tham gia một khóa học để bắt đầu.”
+	A2. Lỗi kết nối database
+	Nếu hệ thống không truy xuất được dữ liệu, hiển thị thông báo lỗi “Không thể lấy dữ liệu. Vui lòng thử lại sau.”
+	A3. Học sinh chưa đăng nhập
+	Nếu học sinh chưa đăng nhập, hệ thống tự động chuyển hướng đến trang Đăng nhập.
+	________________
+
+
+8️. Yêu cầu đặc biệt (Special requirements)
+      * Thống kê được hiển thị dưới dạng trực quan (biểu đồ): Pie chart (tỉ lệ hoàn thành), Bar chart (thời gian học), Line chart (điểm số theo thời gian).
+      * Dữ liệu thống kê phải được tổng hợp theo thời gian thực (real-time) hoặc cập nhật theo ngày.
+      * Thời gian phản hồi < 5 giây.
+________________
+
+
+9️. Dữ liệu liên quan (Related data)
+Dữ liệu
+	Mô tả
+	Bảng Học viên (Student)
+	Thông tin cá nhân của học sinh
+	Bảng Khóa học (Course)
+	Thông tin khóa học đã đăng ký
+	Bảng Tiến độ học (Progress)
+	Ghi nhận số bài học đã xem, % hoàn thành
+	Bảng Kết quả kiểm tra (QuizResult)
+	Điểm bài kiểm tra, ngày làm bài
+	Bảng Lịch sử học (ActivityLog)
+	Thời gian đăng nhập, tổng thời gian học
+	________________
+
+
+Giáo viên
+Use Case: Quản lý khóa học
+ Mục tiêu
+Cho phép giảng viên hoặc quản trị viên theo dõi, chỉnh sửa và kiểm soát toàn bộ nội dung và hoạt động của các khóa học mà họ phụ trách.
+ Tác nhân chính
+      * Giảng viên (Instructor): Người tạo và giảng dạy khóa học.
+      * Quản trị viên (Admin): Người có quyền kiểm soát toàn bộ hệ thống và nội dung khóa học.
+ Điều kiện tiên quyết
+      * Tác nhân đã đăng nhập với quyền phù hợp.
+      * Có ít nhất một khóa học đã được tạo hoặc phân công.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học" từ dashboard.
+	2
+	Hệ thống hiển thị danh sách các khóa học mà giảng viên đang phụ trách.
+	3
+	Giảng viên chọn một khóa học để quản lý chi tiết.
+	4
+	Các chức năng quản lý bao gồm:
+	
+
+	- Chỉnh sửa thông tin khóa học: tên, mô tả, ảnh đại diện, giá, cấp độ.
+	
+
+	- Quản lý nội dung: thêm/sửa/xóa bài giảng, video, tài liệu, bài tập.
+	
+
+	- Quản lý học viên: xem danh sách học viên, tiến độ học, điểm số.
+	
+
+	- Quản lý bài nộp: xem, chấm điểm, phản hồi bài tập.
+	
+
+	- Thống kê học tập: lượt truy cập, tỷ lệ hoàn thành, đánh giá học viên.
+	
+
+	- Trạng thái khóa học: xuất bản, ẩn, lưu nháp, khóa.
+	5
+	Hệ thống lưu lại các thay đổi và cập nhật cho học viên nếu cần.
+	🔄 Luồng thay thế
+      * Không có khóa học nào: Hiển thị thông báo "Bạn chưa có khóa học nào để quản lý".
+      * Không có quyền truy cập: Hiển thị lỗi "Bạn không có quyền quản lý khóa học này".
+✅ Điều kiện sau cùng
+      * Giảng viên có thể kiểm soát toàn bộ nội dung và hoạt động của khóa học.
+      * Hệ thống phản ánh chính xác các thay đổi đến học viên và giao diện người dùng.
+📌 Ghi chú bổ sung
+      * Có thể phân quyền cho trợ giảng hoặc cộng tác viên.
+      * Hệ thống nên hỗ trợ lưu nháp và kiểm duyệt nội dung trước khi xuất bản.
+ 
+Use Case: Tạo khóa học
+🎯 Mục tiêu
+Cho phép giảng viên (hoặc quản trị viên?) tạo mới một khóa học để cung cấp nội dung học tập cho người dùng.
+ Tác nhân chính
+      * Giảng viên (Instructor): Người tạo và quản lý nội dung khóa học.
+      * Quản trị viên (Admin): Có quyền tạo khóa học thay mặt giảng viên hoặc tổ chức.
+ Điều kiện tiên quyết
+      * Tác nhân đã đăng nhập với quyền giảng viên hoặc quản trị viên.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập trang "Quản lý khóa học" và chọn "Tạo khóa học mới".
+	2
+	Hệ thống hiển thị biểu mẫu tạo khóa học gồm các trường:
+	
+
+	- Tên khóa học
+	
+
+	- Mô tả ngắn
+	
+
+	- Chủ đề/chuyên ngành
+	
+
+	- Cấp độ (Cơ bản, Trung cấp, Nâng cao)
+	
+
+	- Giá (Miễn phí hoặc có phí)
+	
+
+	- Ảnh đại diện khóa học
+	
+
+	- Ngôn ngữ giảng dạy
+	
+
+	- Lịch học (nếu có)
+	3
+	Giảng viên nhập thông tin và nhấn "Lưu" .
+	4
+	Hệ thống kiểm tra tính hợp lệ và lưu khóa học vào cơ sở dữ liệu.
+	5
+	Hiển thị thông báo "Tạo khóa học thành công" và chuyển đến trang quản lý nội dung khóa học.
+	🔄 Luồng thay thế
+      * Thiếu thông tin bắt buộc: Hệ thống hiển thị lỗi và yêu cầu nhập lại.
+      * Không có quyền tạo khóa học: Hiển thị thông báo "Bạn không có quyền thực hiện thao tác này".
+✅ Điều kiện sau cùng
+      * Khóa học được tạo và hiển thị trong danh sách khóa học của giảng viên.
+      * Người dùng có thể tìm thấy khóa học nếu được xuất bản.
+📌 Ghi chú bổ sung
+      * Sau khi tạo, giảng viên có thể thêm nội dung: video bài giảng, tài liệu, bài tập, câu hỏi trắc nghiệm.
+      * Có thể tích hợp tính năng "Lưu nháp" để hoàn thiện sau.
+      * Hệ thống nên hỗ trợ kiểm duyệt nội dung trước khi khóa học được công khai.
+Use Case: Thống kê khóa học (Giảng viên)
+ Mục tiêu
+Cung cấp cho giảng viên cái nhìn tổng quan và chi tiết về hiệu quả giảng dạy, mức độ tương tác và tiến độ học tập của học viên trong từng khóa học.
+ Tác nhân chính
+      * Giảng viên (Instructor): Người tạo và giảng dạy khóa học, cần theo dõi hiệu quả và chất lượng đào tạo.
+ Điều kiện tiên quyết
+      * Giảng viên đã đăng nhập vào hệ thống.
+      * Có ít nhất một khóa học đang hoạt động hoặc đã hoàn thành.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Thống kê" từ trang quản lý khóa học.
+	4
+	Hệ thống hiển thị các chỉ số thống kê, bao gồm:
+-Doanh thu
+	
+
+	- Số lượng học viên đăng ký theo thời gian
+	
+
+	- Tỷ lệ hoàn thành khóa học
+	
+
+	- Điểm trung bình, điểm cao nhất/thấp nhất
+	
+
+	- Số lượt xem bài giảng/video
+	
+
+	- Tỷ lệ hoàn thành bài tập, bài kiểm tra
+	5
+	Giảng viên có thể lọc theo thời gian, nhóm học viên, hoặc bài học cụ thể.
+	6
+	Có thể xuất dữ liệu thống kê ra file (Excel/PDF) nếu được hỗ trợ.
+	 Luồng thay thế
+      * Không có dữ liệu thống kê: Hiển thị thông báo "Chưa có dữ liệu thống kê ".
+      * Lỗi tải dữ liệu: Hiển thị thông báo lỗi và cho phép thử lại.
+ Điều kiện sau cùng
+      * Giảng viên nắm được tình hình học tập và mức độ hiệu quả của khóa học.
+      * Có thể sử dụng dữ liệu để cải thiện nội dung, phương pháp giảng dạy hoặc hỗ trợ học viên.
+ Ghi chú bổ sung
+      * Nên hỗ trợ biểu đồ trực quan (cột, tròn, đường) để dễ theo dõi.
+      * Có thể tích hợp cảnh báo sớm nếu tỷ lệ bỏ học cao hoặc học viên không hoàn thành bài tập.
+      * Hệ thống nên cho phép so sánh giữa các khóa học hoặc giữa các kỳ học.
+Use Case: Xem danh sách học sinh đã đăng ký khóa
+ Mục tiêu
+Giảng viên có thể xem danh sách học viên đã đăng ký khóa học để theo dõi, hỗ trợ và quản lý lớp học.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học".
+	2
+	Chọn khóa học cần xem danh sách học viên.
+	3
+	Hệ thống hiển thị danh sách học viên gồm: họ tên, email, ngày đăng ký, trạng thái học (đang học, hoàn thành, chưa bắt đầu).
+	4
+	Giảng viên có thể lọc, tìm kiếm, hoặc xuất danh sách ra file.
+	 Use Case: Chấm điểm
+🎯 Mục tiêu
+Giảng viên xem bài tập đã nộp, chấm điểm và viết nhận xét để phản hồi cho học viên.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Bài tập" trong khóa học.
+	2
+	Chọn bài cần chấm và xem danh sách học viên đã nộp.
+	3
+	Chọn từng bài nộp để xem nội dung.
+	4
+	Nhập điểm số và viết nhận xét (feedback).
+	5
+	Nhấn "Lưu" để gửi kết quả cho học viên.
+	6
+	Hệ thống cập nhật điểm và hiển thị cho học viên.
+	Use Case: Tạo bài tập cho học sinh
+🎯 Mục tiêu
+Cho phép giảng viên tạo bài tập để học sinh thực hành, kiểm tra kiến thức và đánh giá năng lực.
+👤 Tác nhân chính
+      * Giảng viên (Instructor): Người tạo và giao bài tập cho học viên trong khóa học.
+📋 Điều kiện tiên quyết
+      * Giảng viên đã đăng nhập vào hệ thống.
+      * Giảng viên có ít nhất một khóa học đang hoạt động.
+      * Hệ thống hỗ trợ chức năng bài tập trong khóa học.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Quản lý khóa học" và chọn khóa học cần tạo bài tập.
+(hoặc vào mục bài tập, hệ thống hiện ra các khóa học, nhấn vào khóa học để giao bài)
+	2
+	Chọn tab "Bài tập" hoặc "Nhiệm vụ" và nhấn "Tạo bài tập mới".
+	3
+	Nhập thông tin bài tập:
+	
+
+	- Tiêu đề bài tập
+	
+
+	- Mô tả yêu cầu
+	
+
+	- Hạn nộp
+	
+
+	- Hình thức nộp (tải file, nhập trực tiếp, trắc nghiệm, v.v.)
+	
+
+	- Điểm tối đa
+	
+
+	- Tài liệu đính kèm (nếu có)
+	4
+	Nhấn "Lưu" hoặc "Giao bài".
+	5
+	Hệ thống hiển thị bài tập cho học viên trong giao diện khóa học.
+	🔄 Luồng thay thế
+      * Thiếu thông tin bắt buộc: Hệ thống hiển thị lỗi và yêu cầu nhập lại.
+      * Chưa chọn khóa học: Không cho phép tạo bài tập nếu không có khóa học cụ thể.
+✅ Điều kiện sau cùng
+      * Bài tập được tạo thành công và hiển thị cho học viên.
+      * Học viên có thể nộp bài đúng hạn và giảng viên có thể chấm điểm sau đó.
+📌 Ghi chú bổ sung
+      * Có thể thêm tùy chọn cho phép nộp lại bài (nếu được).
+      * Hệ thống nên hỗ trợ định dạng bài tập tự luận, trắc nghiệm, hoặc bài tập nhóm.
+      * Có thể tích hợp tính năng tự động chấm điểm với bài trắc nghiệm.
+ 
+📢 Use Case: Gửi thông báo
+🎯 Mục tiêu
+Giảng viên gửi thông báo đến toàn bộ học viên trong lớp để cập nhật thông tin, nhắc nhở hoặc chia sẻ tài liệu.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Giảng viên truy cập mục "Thông báo lớp học".
+	2
+	Nhấn "Tạo thông báo mới".
+	3
+	Nhập tiêu đề, nội dung thông báo, đính kèm file (nếu có).
+	4
+	Chọn đối tượng nhận: toàn bộ học viên của khóa học.
+	5
+	Nhấn "Gửi".
+	6
+	Hệ thống gửi thông báo qua email hoặc hiển thị trong giao diện học viên.
+	📌 Ghi chú bổ sung
+      * Các chức năng này nên được tích hợp trong một dashboard giảng viên dễ sử dụng.
+      * Hệ thống nên hỗ trợ lọc theo nhóm học viên, trạng thái học, hoặc thời gian nộp bài.
+      * Thông báo nên có lịch sử gửi và trạng thái đã đọc.
+Admin
+ Use Case: Quản lý người dùng & Phân quyền
+ Mục tiêu
+Cho phép quản trị viên kiểm soát toàn bộ tài khoản người dùng trên hệ thống, bao gồm việc chỉnh sửa thông tin, phân quyền truy cập và quản lý trạng thái tài khoản.
+ Tác nhân chính
+      * Admin (Quản trị viên): Người có quyền cao nhất trong hệ thống, thực hiện các thao tác quản lý và phân quyền người dùng.
+📋 Điều kiện tiên quyết
+      * Admin đã đăng nhập vào hệ thống.
+      * Hệ thống có danh sách người dùng và cơ chế phân quyền rõ ràng.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Quản lý người dùng" từ dashboard.
+	2
+	Hệ thống hiển thị danh sách người dùng: tên, email, vai trò, trạng thái.
+	3
+	Admin có thể thực hiện các thao tác:
+	
+
+	- Tìm kiếm và lọc người dùng theo vai trò hoặc trạng thái
+	
+
+	- Xem chi tiết hồ sơ người dùng
+	
+
+	- Chỉnh sửa thông tin cá nhân (tên, email, ảnh đại diện)
+	
+
+	- Thay đổi vai trò người dùng: học viên ↔ giảng viên ↔ admin
+	
+
+	- Gán quyền truy cập theo nhóm chức năng (ví dụ: chỉ được tạo khóa học, không được duyệt bài tập)
+	
+
+	- Khóa/Mở khóa tài khoản
+	
+
+	- Xóa tài khoản hoặc khôi phục
+	
+
+	- Tạo tài khoản mới với vai trò cụ thể
+	4
+	Hệ thống ghi nhận thay đổi và cập nhật dữ liệu người dùng.
+	5
+	Hiển thị thông báo xác nhận thao tác thành công.
+	 Luồng thay thế
+      * Người dùng không tồn tại: Hiển thị thông báo lỗi.
+      * Không đủ quyền: Ngăn thao tác và hiển thị cảnh báo.
+      * Lỗi hệ thống: Cho phép thử lại hoặc liên hệ hỗ trợ.
+ Điều kiện sau cùng
+      * Người dùng được cập nhật thông tin và vai trò chính xác.
+      * Hệ thống phản ánh đúng quyền truy cập và trạng thái tài khoản.
+Use Case: Duyệt và quản lý khóa học
+ Mục tiêu
+Cho phép quản trị viên kiểm duyệt nội dung khóa học trước khi công khai, đồng thời quản lý toàn bộ vòng đời của các khóa học trên hệ thống.
+ Tác nhân chính
+      * Admin (Quản trị viên): Người có quyền kiểm soát và phê duyệt nội dung khóa học.
+ Điều kiện tiên quyết
+      * Admin đã đăng nhập vào hệ thống.
+      * Có ít nhất một khóa học đang chờ duyệt hoặc đã được tạo bởi giảng viên.
+ Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Duyệt khóa học" hoặc "Quản lý khóa học".
+	2
+	Hệ thống hiển thị danh sách các khóa học theo trạng thái: Chờ duyệt, Đã duyệt, Bị từ chối, Đã xuất bản, Đã ẩn.
+	3
+	Admin chọn một khóa học để xem chi tiết:
+	
+
+	- Tên khóa học, mô tả, ảnh đại diện
+	
+
+	- Nội dung bài giảng, bài tập, video, tài liệu
+	
+
+	- Thông tin giảng viên
+	
+
+	- Giá bán, chủ đề, cấp độ
+	4
+	Admin thực hiện một trong các hành động:
+	
+
+	- Duyệt khóa học (cho phép xuất bản)
+	
+
+	- Từ chối khóa học (kèm lý do)
+	
+
+	- Chỉnh sửa thông tin (nếu cần)
+	
+
+	- Ẩn / Khóa khóa học (tạm thời không hiển thị)
+	
+
+	- Xóa khóa học (vĩnh viễn)
+	5
+	Hệ thống cập nhật trạng thái khóa học và thông báo cho giảng viên.
+	 Luồng thay thế
+      * Khóa học không hợp lệ: Admin từ chối và ghi rõ lý do để giảng viên chỉnh sửa.
+      * Lỗi hệ thống khi duyệt: Hiển thị thông báo lỗi và cho phép thử lại.
+      * Không có khóa học chờ duyệt: Hiển thị thông báo "Không có khóa học nào cần duyệt".
+ Điều kiện sau cùng
+      * Khóa học được duyệt và hiển thị công khai cho học viên (nếu được phê duyệt).
+      * Hệ thống ghi nhận trạng thái và lịch sử xử lý khóa học.
+ Ghi chú bổ sung
+      * Có thể tích hợp bộ lọc theo chủ đề, giảng viên, trạng thái, ngày tạo.
+      * Nên có tính năng ghi log hoạt động duyệt khóa học để đảm bảo minh bạch.
+      * Có thể hỗ trợ gửi phản hồi tự động cho giảng viên khi bị từ chối.
+      * Hệ thống nên hỗ trợ phân quyền duyệt khóa học theo chuyên ngành nếu có nhiều admin.
+ Use Case: Thống kê toàn hệ thống
+🎯 Mục tiêu
+Cung cấp cho quản trị viên cái nhìn tổng thể về hoạt động của nền tảng, bao gồm người dùng, khóa học, doanh thu, và mức độ tương tác.
+👤 Tác nhân chính
+      * Admin (Quản trị viên): Người giám sát và điều hành toàn bộ hệ thống.
+📋 Điều kiện tiên quyết
+      * Admin đã đăng nhập vào hệ thống.
+      * Hệ thống có dữ liệu hoạt động từ người dùng, giảng viên, khóa học, và giao dịch.
+🔁 Luồng sự kiện chính
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Thống kê hệ thống" từ dashboard quản trị.
+	2
+	Hệ thống hiển thị các chỉ số tổng quan:
+	
+
+	- Tổng số người dùng (học viên, giảng viên, admin)
+	
+
+	- Số lượng khóa học đang hoạt động, đã duyệt, bị ẩn
+	
+
+	- Tổng doanh thu toàn hệ thống, doanh thu cho gv.
+	
+
+	- Số lượt đăng ký khóa học theo thời gian
+	
+
+	- Tỷ lệ hoàn thành khóa học trung bình
+	
+
+	- Số lượt truy cập hệ thống theo ngày/tuần/tháng
+	
+
+	- Số lượng bài tập đã nộp và được chấm
+	
+
+	- Tỷ lệ tương tác (bình luận, hỏi đáp, đánh giá)
+	3
+	Admin có thể lọc theo thời gian, chủ đề, nhóm người dùng hoặc trạng thái khóa học.
+	4
+	Có thể xuất dữ liệu thống kê ra file (Excel/PDF) để báo cáo hoặc phân tích.
+	 Luồng thay thế
+      * Không có dữ liệu: Hiển thị thông báo "Chưa có dữ liệu thống kê".
+      * Lỗi tải dữ liệu: Hiển thị thông báo lỗi và cho phép thử lại.
+ Điều kiện sau cùng
+      * Admin có thể theo dõi hiệu suất hệ thống, phát hiện vấn đề, và đưa ra quyết định cải tiến.
+      * Dữ liệu được cập nhật chính xác và có thể sử dụng cho báo cáo nội bộ.
+ Ghi chú bổ sung
+      * Nên hỗ trợ biểu đồ trực quan: cột, tròn, đường, heatmap.
+      * Có thể tích hợp cảnh báo tự động nếu phát hiện bất thường (ví dụ: tỷ lệ bỏ học tăng đột biến).
+      * Hệ thống nên hỗ trợ so sánh theo kỳ, theo nhóm người dùng, hoặc theo chuyên ngành.
+Use Case: Quản lý nội dung (Content Management)
+Mục tiêu
+Cho phép quản trị viên kiểm soát, cập nhật và tổ chức các nội dung hiển thị trên hệ thống, bao gồm danh mục khóa học, trang tĩnh và blog/tin tức.
+ Tác nhân chính
+      * Admin (Quản trị viên): Người có quyền chỉnh sửa và cấu hình nội dung hệ thống.
+ Điều kiện tiên quyết
+      * Admin đã đăng nhập vào hệ thống.
+      * Hệ thống có module quản lý nội dung.
+ Luồng sự kiện chính
+1.  Quản lý danh mục khóa học (Categories)
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Danh mục khóa học".
+	2
+	Xem danh sách danh mục hiện có.
+	3
+	Thêm, sửa, xóa danh mục (ví dụ: CNTT, Kinh tế, Ngoại ngữ).
+	4
+	Gán danh mục cho các khóa học tương ứng.
+	2.  Quản lý trang nội dung tĩnh (Static Pages) +  Quản lý Blog / Tin tức
+Bước
+	Mô tả hành động
+	1
+	Admin truy cập mục "Bài viết".
+	2
+	Chọn trang cần chỉnh sửa (Giới thiệu, Liên hệ, Chính sách…).
+	3
+	Cập nhật nội dung văn bản, hình ảnh, liên kết.
+	4
+	Lưu và xuất bản trang để hiển thị cho người dùng.
+	 
+1
+	Admin truy cập mục "Blog/Tin tức".
+	2
+	Xem danh sách bài viết đã đăng.
+	3
+	Tạo bài viết mới: tiêu đề, nội dung, ảnh minh họa, danh mục.
+	4
+	Chỉnh sửa hoặc xóa bài viết cũ.
+	5
+	Xuất bản bài viết để hiển thị trên trang chủ hoặc mục tin tức.
+	 Điều kiện sau cùng
+      * Nội dung hệ thống được cập nhật đầy đủ, chính xác và hiển thị đúng vị trí.
+      * Người dùng có thể truy cập các danh mục, trang tĩnh và bài viết blog dễ dàng.
+ Ghi chú bổ sung
+      * Nên có tính năng lưu nháp và lịch sử chỉnh sửa cho từng nội dung.
+      * Có thể tích hợp trình soạn thảo WYSIWYG để dễ dàng định dạng văn bản.

@@ -1,0 +1,39 @@
+Core Navigation & Routing
+
+Implement client-side routing and role-aware navigation states so every screen in the flows (home, course catalog, login/register/forgot-password, dashboards, detail pages) is reachable from the URL (Use Case: Trang chủ, main flow steps 3–5).
+Authentication & Account Management
+
+Upgrade Sign Up UI with role selector, inline validation, and error states (Use Case: Đăng ký, alt flows A1–A4).
+Add “Forgot Password” page + confirmation state to match the recovery flow (Use Case: Quên mật khẩu).
+Polish Login form with validation feedback, remember-me checkbox, locked-account messaging (Use Case: Đăng nhập, alt flows A1–A3).
+Build Profile & Settings screen with editable personal info, avatar upload stub, password change form, and header account dropdown (Use Case: Học sinh/Giáo viên thay đổi thông tin tài khoản cá nhân).
+Guest & Catalog Experience
+
+Expand home page to show banner, featured courses, testimonials, auth prompts per user state, and linkouts (Use Case: Trang chủ).
+Enhance course catalog with autocomplete search suggestions, filters for category/level/price/instructor, and “no results” messaging (Use Case: Tìm kiếm và lọc khóa học).
+Enrich course detail screen: sticky action card (Add to cart / Save), curriculum accordion, instructor bio, review submission modal, related courses carousel (Use Case: Tìm kiếm và lọc khóa học, step 6 + Use Case: Đánh giá khóa học).
+Commerce Flow (front-end only)
+
+Create “Add to Cart” interactions, cart drawer/page with item list & total, visual feedback for duplicates or guest access blocks (Use Case: Thêm vào giỏ hàng).
+Design multi-step checkout page (billing summary, payment-method selection, confirmation screen) with mocked success/fail states (Use Case: Thanh toán).
+Student Area
+
+Upgrade “My Courses” with status filters (All/Đang học/Đã hoàn thành), progress meters, next-lesson CTA, empty state (Use Case: Khóa học của tôi).
+Add assignment list + upload dialog (file picker, validation copy, success/fail toasts) and resubmission warning (Use Case: Nộp bài, alt flows A1–A5).
+Provide grade overview table with sortable columns and placeholder feedback drawer (Use Case: Xem điểm).
+Build a “Learning Statistics” page with mock charts (pie/bar/line) and time filters (Use Case: Thống kê cho học sinh, sections 2–6).
+Teacher Dashboard
+
+Implement course list table with inline edit button, and modal to create/edit course info (title, price, level, thumbnail, schedule) (Use Case: Quản lý khóa học, Use Case: Tạo khóa học).
+Add content manager tabs for lessons/resources, assignment composer, roster view with filters/export, grading panel with comment drawer (Use Case: Tạo bài tập, Use Case: Xem danh sách học sinh, Use Case: Chấm điểm).
+Include scheduling calendar mock and announcement composer (Use Case: TeacherSchedule, Use Case: Gửi thông báo).
+Display teacher stats cards and charts (enrollments, completion rate, revenue) (Use Case: Thống kê khóa học (Giảng viên)).
+Admin Console
+
+Build user-management table (search, role badges, lock/unlock toggles, action menu) (Use Case: Quản lý người dùng & Phân quyền).
+Create course moderation queue with approve/reject/feedback states (Use Case: Duyệt và quản lý khóa học).
+Add system-wide analytics dashboard panels with mock data & filters (Use Case: Thống kê toàn hệ thống).
+Provide content management screens for categories, static pages, blog posts with create/edit modals (Use Case: Quản lý nội dung).
+UI System & Feedback
+
+Ensure consistent form validation states, confirmation dialogs, toast notifications, skeleton loaders, and empty states across all modules (requirements repeated in Đăng ký alt flows, Nộp bài, Quản lý người dùng’s error handling, etc.).
