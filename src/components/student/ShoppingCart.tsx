@@ -1,0 +1,126 @@
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Trash2, ShoppingCart as CartIcon } from 'lucide-react';
+import { Badge } from '../ui/badge';
+
+interface ShoppingCartProps {
+  onNavigate: (page: string) => void;
+}
+
+// Mock data
+const cartItems = [
+  {
+    id: 1,
+    title: 'Lập trình React từ cơ bản đến nâng cao',
+    instructor: 'Nguyễn Văn A',
+    price: 599000,
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=200&fit=crop'
+  },
+  {
+    id: 2,
+    title: 'Thiết kế UI/UX với Figma',
+    instructor: 'Trần Thị B',
+    price: 499000,
+    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop'
+  }
+];
+
+export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
+  const total = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+  const handleRemove = (id: number) => {
+    alert(`Đã xóa khóa học ID ${id} khỏi giỏ hàng`);
+  };
+
+  const handleCheckout = () => {
+    onNavigate('checkout');
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="p-8">
+        <h1 className="mb-6">Giỏ hàng</h1>
+        <Card>
+          <CardContent className="p-12 text-center">
+            <CartIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 mb-4">Giỏ hàng của bạn đang trống</p>
+            <Button onClick={() => onNavigate('courses')}>
+              Khám phá khóa học
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8">
+      <h1 className="mb-6">Giỏ hàng ({cartItems.length} khóa học)</h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
+          {cartItems.map((item) => (
+            <Card key={item.id}>
+              <CardContent className="p-4">
+                <div className="flex gap-4">
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-32 h-20 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <h3 className="mb-1">{item.title}</h3>
+                    <p className="text-sm text-gray-600 mb-2">Giảng viên: {item.instructor}</p>
+                    <Badge variant="secondary">Bestseller</Badge>
+                  </div>
+                  <div className="text-right">
+                    <p className="mb-2">{item.price.toLocaleString('vi-VN')}đ</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemove(item.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Xóa
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="lg:col-span-1">
+          <Card className="sticky top-4">
+            <CardHeader>
+              <CardTitle>Tổng cộng</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Tạm tính:</span>
+                <span>{total.toLocaleString('vi-VN')}đ</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Giảm giá:</span>
+                <span className="text-green-600">-0đ</span>
+              </div>
+              <div className="border-t pt-4">
+                <div className="flex justify-between mb-4">
+                  <span>Tổng:</span>
+                  <span className="text-xl">{total.toLocaleString('vi-VN')}đ</span>
+                </div>
+                <Button className="w-full" onClick={handleCheckout}>
+                  Thanh toán
+                </Button>
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Hoàn tiền trong 30 ngày nếu không hài lòng
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
