@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { BookOpen, Home, GraduationCap, Users, Settings, LogOut, Menu, Search, Bell, ShoppingCart as CartIcon, FileText, BarChart, Award } from 'lucide-react';
+import { BookOpen, Home, GraduationCap, Users, Settings, LogOut, Menu, Bell, ShoppingCart as CartIcon, FileText, BarChart, Award, User as UserIcon } from 'lucide-react';
 import { Button } from './components/ui/button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './components/ui/dropdown-menu';
+import { Popover, PopoverTrigger, PopoverContent } from './components/ui/popover';
 import { Input } from './components/ui/input';
 import { Badge } from './components/ui/badge';
 import { Toaster } from './components/ui/sonner';
 import GuestHome from './components/guest/GuestHome';
 import CourseCatalog from './components/guest/CourseCatalog';
+import { toast } from 'sonner';
 import CourseDetail from './components/guest/CourseDetail';
 import About from './components/guest/About';
 import Contact from './components/guest/Contact';
@@ -36,12 +39,31 @@ export default function App() {
   const [user, setUser] = useState<string | null>(null); // null, 'student', 'teacher', 'admin'
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const showSidebar = user && !['home', 'courses', 'course-detail', 'about', 'contact'].includes(currentPage);
+
+  // Simple in-memory notifications; could be loaded from API/localStorage later
+  const [notifications, setNotifications] = useState<Array<{
+    id: number;
+    title: string;
+    message: string;
+    time: string;
+    read: boolean;
+  }>>([
+    { id: 1, title: 'Bài tập mới', message: 'Giáo viên đã giao bài tập tuần này.', time: '2 giờ trước', read: false },
+    { id: 2, title: 'Cập nhật khóa học', message: 'Khóa React đã thêm bài giảng mới.', time: 'Hôm qua', read: true },
+  ]);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const clearAll = () => setNotifications([]);
+  const markReadById = (id: number) => setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
 
   const handleLogin = (role: string) => {
     setUser(role);
-    if (role === 'student') setCurrentPage('student-dashboard');
-    if (role === 'teacher') setCurrentPage('teacher-dashboard');
-    if (role === 'admin') setCurrentPage('admin-dashboard');
+    // if (role === 'student') setCurrentPage('student-dashboard');
+    // if (role === 'teacher') setCurrentPage('teacher-dashboard');
+    // if (role === 'admin') setCurrentPage('admin-dashboard');
+    // After login, always go to Home as requested
+    setCurrentPage('home');
   };
 
   const handleLogout = () => {
@@ -49,9 +71,32 @@ export default function App() {
     setCurrentPage('home');
   };
 
+  // Redirect guard: if user becomes null while on protected page, force home
+  if (!user && /^(student|teacher|admin)-/.test(currentPage)) {
+    // simple synchronous guard; in real app use useEffect + router
+    setCurrentPage('home');
+  }
+
   const handleCourseSelect = (course: any) => {
     setSelectedCourse(course);
     setCurrentPage('course-detail');
+  };
+
+  const handleAddToCart = (course: any) => {
+    try {
+      const raw = localStorage.getItem('cart');
+      const arr = raw ? JSON.parse(raw) : [];
+      // de-duplicate by id if exists
+      if (!arr.find((c: any) => c.id === course.id)) {
+        arr.push({ id: course.id, title: course.title, price: course.price, instructor: course.instructor, image: course.image });
+        localStorage.setItem('cart', JSON.stringify(arr));
+        toast.success('Đã thêm vào giỏ hàng');
+      } else {
+        toast.message('Khóa học đã có trong giỏ');
+      }
+    } catch (e) {
+      toast.error('Không thể thêm vào giỏ hàng');
+    }
   };
 
   const renderNavigation = () => {
@@ -93,7 +138,7 @@ export default function App() {
     return (
       <nav className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16 relative">
             <div className="flex items-center gap-4">
               <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden">
                 <Menu className="w-6 h-6" />
@@ -103,14 +148,105 @@ export default function App() {
                 <span className="font-bold text-xl">EduPlatform</span>
               </div>
             </div>
+            {/* Centered quick nav (logged-in) */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
+              <button onClick={() => setCurrentPage('home')} className={`hover:text-blue-600 ${currentPage==='home'?'text-blue-600':''}`}>Trang chủ</button>
+              <button onClick={() => setCurrentPage('courses')} className={`hover:text-blue-600 ${currentPage==='courses'?'text-blue-600':''}`}>Khóa học</button>
+              <button onClick={() => setCurrentPage('about')} className={`hover:text-blue-600 ${currentPage==='about'?'text-blue-600':''}`}>Giới thiệu</button>
+              <button onClick={() => setCurrentPage('contact')} className={`hover:text-blue-600 ${currentPage==='contact'?'text-blue-600':''}`}>Liên hệ</button>
+            </div>
             <div className="flex items-center gap-4">
-              <Bell className="w-5 h-5 text-gray-600 cursor-pointer" />
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                  {user === 'student' ? 'S' : user === 'teacher' ? 'T' : 'A'}
-                </div>
-                <span className="hidden md:block">{user === 'student' ? 'Học sinh' : user === 'teacher' ? 'Giáo viên' : 'Admin'}</span>
-              </div>
+              {/* Notifications popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="relative p-1 rounded hover:bg-gray-100">
+                    <Bell className="w-5 h-5 text-gray-600" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[10px] leading-4 text-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0 overflow-hidden" style={{ minWidth: '24rem' }}>
+                  <div className="border-b px-3 py-2 flex items-center justify-between">
+                    <div className="font-medium">Thông báo</div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline">Đánh dấu đã đọc</button>
+                      <button onClick={clearAll} className="text-xs text-gray-500 hover:underline">Xóa tất cả</button>
+                    </div>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-sm text-gray-500 text-center">Chưa có thông báo</div>
+                    ) : (
+                      <ul className="divide-y">
+                        {notifications.map((n) => (
+                          <li key={n.id}>
+                            <button
+                              className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${n.read ? 'opacity-80' : ''}`}
+                              onClick={() => markReadById(n.id)}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="text-sm font-medium flex items-center gap-2">
+                                    {n.title}
+                                    {!n.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />}
+                                  </div>
+                                  <div className="text-sm text-gray-600 line-clamp-2">{n.message}</div>
+                                </div>
+                                <div className="text-xs text-gray-400 whitespace-nowrap">{n.time}</div>
+                              </div>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+              {/* Cart shortcut for students */}
+              {user === 'student' && (
+                <button onClick={() => setCurrentPage('shopping-cart')} title="Giỏ hàng" className="relative">
+                  <CartIcon className="w-5 h-5 text-gray-700" />
+                </button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 focus:outline-none">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                      {user === 'student' ? 'S' : user === 'teacher' ? 'T' : 'A'}
+                    </div>
+                    <span className="hidden md:block text-sm font-medium">
+                      {user === 'student' ? 'Học sinh' : user === 'teacher' ? 'Giáo viên' : 'Admin'}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {/* <div className="px-2 py-2 text-xs text-gray-500">
+                    Đang đăng nhập: <span className="font-semibold text-gray-700">{user}</span>
+                  </div> */}
+                  <DropdownMenuSeparator />
+                  {user === 'student' && (
+                    <DropdownMenuItem onClick={() => setCurrentPage('student-profile')} className="cursor-pointer gap-2">
+                      <UserIcon className="w-4 h-4" /> Hồ sơ của tôi
+                    </DropdownMenuItem>
+                  )}
+                  {user === 'teacher' && (
+                    <DropdownMenuItem onClick={() => setCurrentPage('teacher-profile')} className="cursor-pointer gap-2">
+                      <UserIcon className="w-4 h-4" /> Hồ sơ giáo viên
+                    </DropdownMenuItem>
+                  )}
+                  {user === 'admin' && (
+                    <DropdownMenuItem onClick={() => setCurrentPage('admin-dashboard')} className="cursor-pointer gap-2">
+                      <UserIcon className="w-4 h-4" /> Trang quản trị
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-2 text-red-600 focus:text-red-600">
+                    <LogOut className="w-4 h-4" /> Đăng xuất
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -185,8 +321,23 @@ export default function App() {
     if (currentPage === 'register') return <Register onNavigate={setCurrentPage} />;
     if (currentPage === 'forgot-password') return <ForgotPassword onNavigate={setCurrentPage} />;
     if (currentPage === 'home') return <GuestHome onNavigate={setCurrentPage} onCourseSelect={handleCourseSelect} />;
-    if (currentPage === 'courses') return <CourseCatalog onCourseSelect={handleCourseSelect} />;
-    if (currentPage === 'course-detail') return <CourseDetail course={selectedCourse} onNavigate={setCurrentPage} />;
+    if (currentPage === 'courses') return (
+      <CourseCatalog
+        onCourseSelect={handleCourseSelect}
+        userRole={user === 'student' || user === 'teacher' || user === 'admin' ? user : null}
+        onAddToCart={handleAddToCart}
+        onRequestLogin={() => setCurrentPage('login')}
+      />
+    );
+    if (currentPage === 'course-detail') return (
+      <CourseDetail
+        course={selectedCourse}
+        onNavigate={setCurrentPage}
+        userRole={user === 'student' || user === 'teacher' || user === 'admin' ? user : null}
+        onAddToCart={handleAddToCart}
+        onRequestLogin={() => setCurrentPage('login')}
+      />
+    );
   if (currentPage === 'about') return <About />;
   if (currentPage === 'contact') return <Contact />;
     
@@ -218,7 +369,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       {renderNavigation()}
       <div className="flex">
-        {renderSidebar()}
+        {showSidebar ? renderSidebar() : null}
         <div className="flex-1">
           {renderContent()}
         </div>

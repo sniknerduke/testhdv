@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '../ui/card';
+import { Button } from '../ui/button';
+import { toast } from 'sonner';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Search, Star } from 'lucide-react';
@@ -75,9 +77,12 @@ const allCourses = [
 
 interface CourseCatalogProps {
   onCourseSelect: (course: any) => void;
+  userRole?: 'student' | 'teacher' | 'admin' | null;
+  onAddToCart?: (course: any) => void;
+  onRequestLogin?: () => void;
 }
 
-export default function CourseCatalog({ onCourseSelect }: CourseCatalogProps) {
+export default function CourseCatalog({ onCourseSelect, userRole = null, onAddToCart, onRequestLogin }: CourseCatalogProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
   const [level, setLevel] = useState('all');
@@ -169,6 +174,41 @@ export default function CourseCatalog({ onCourseSelect }: CourseCatalogProps) {
                   <span className="text-gray-400 text-sm">({course.students})</span>
                 </div>
                 <span className="font-semibold">{course.price}</span>
+              </div>
+
+              {/* Action button */}
+              <div className="mt-4">
+                {userRole === 'student' ? (
+                  <Button
+                    className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onAddToCart) onAddToCart(course); else toast.success('Đã thêm vào giỏ hàng');
+                    }}
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                ) : userRole === 'teacher' ? (
+                  <Button
+                    className="w-full opacity-60 cursor-not-allowed"
+                    disabled
+                    onClick={(e) => e.stopPropagation()}
+                    title="Chỉ học sinh mới có thể thêm vào giỏ hàng"
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onRequestLogin) onRequestLogin(); else toast.message('Vui lòng đăng nhập để mua');
+                    }}
+                  >
+                    Đăng nhập để mua
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

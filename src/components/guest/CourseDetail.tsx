@@ -2,6 +2,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Star, Clock, Users, BookOpen, PlayCircle, Award } from 'lucide-react';
+import { toast } from 'sonner';
 
 const courseDetails = {
   description: 'Khóa học này sẽ giúp bạn nắm vững các kiến thức cơ bản và nâng cao, từ đó có thể tự tin áp dụng vào thực tế. Bạn sẽ được hướng dẫn chi tiết từng bước một cách dễ hiểu và có nhiều bài tập thực hành.',
@@ -27,9 +28,12 @@ const courseDetails = {
 interface CourseDetailProps {
   course: any;
   onNavigate: (page: string) => void;
+  userRole?: 'student' | 'teacher' | 'admin' | null;
+  onAddToCart?: (course: any) => void;
+  onRequestLogin?: () => void;
 }
 
-export default function CourseDetail({ course, onNavigate }: CourseDetailProps) {
+export default function CourseDetail({ course, onNavigate, userRole = null, onAddToCart, onRequestLogin }: CourseDetailProps) {
   if (!course) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -66,9 +70,35 @@ export default function CourseDetail({ course, onNavigate }: CourseDetailProps) 
                 <CardContent className="p-6">
                   <div className="text-3xl mb-4">{course.price}</div>
                   <Button className="w-full mb-2">Đăng ký ngay</Button>
-                  <Button variant="outline" className="w-full" onClick={() => onNavigate('login')}>
-                    Đăng nhập để học
-                  </Button>
+                  {/* Secondary action varies by role */}
+                  {userRole === 'student' ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        if (onAddToCart) onAddToCart(course); else toast.success('Đã thêm vào giỏ hàng');
+                      }}
+                    >
+                      Thêm vào giỏ hàng
+                    </Button>
+                  ) : userRole === 'teacher' ? (
+                    <Button
+                      variant="outline"
+                      className="w-full opacity-60 cursor-not-allowed"
+                      disabled
+                      title="Chỉ học sinh mới có thể thêm vào giỏ hàng"
+                    >
+                      Thêm vào giỏ hàng
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => (onRequestLogin ? onRequestLogin() : onNavigate('login'))}
+                    >
+                      Đăng nhập để học
+                    </Button>
+                  )}
                   <div className="mt-4 space-y-2 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4" />

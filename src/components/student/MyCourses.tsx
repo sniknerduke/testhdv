@@ -130,7 +130,50 @@ export default function MyCourses({ onCourseSelect }: MyCoursesProps) {
               <h3 className="mb-2">{course.title}</h3>
               <p className="text-sm text-gray-600 mb-4">{course.instructor}</p>
               <div className="flex gap-2">
-                <Button className="flex-1" onClick={() => onCourseSelect(course)}>
+                <Button
+                  className="flex-1"
+                  onClick={() =>
+                    onCourseSelect({
+                      ...course,
+                      // Inject simple lesson structure for CourseContent consumption
+                      lessons: [
+                        {
+                          id: 101,
+                          title: 'Giới thiệu khóa học',
+                          duration: '10:35',
+                          locked: false,
+                          completed: false,
+                          hasLive: false,
+                          resources: [
+                            { type: 'pdf', name: 'Slide bài 1', url: '#' },
+                          ],
+                        },
+                        {
+                          id: 102,
+                          title: 'Cài đặt môi trường',
+                          duration: '18:20',
+                          locked: false,
+                          completed: false,
+                          hasLive: true,
+                          liveLink: 'https://zoom.us/j/123456789',
+                          resources: [
+                            { type: 'link', name: 'Tải Node.js', url: 'https://nodejs.org' },
+                          ],
+                        },
+                        {
+                          id: 103,
+                          title: 'JSX & Component cơ bản',
+                          duration: '22:47',
+                          locked: true,
+                          completed: false,
+                          hasLive: false,
+                          resources: [],
+                        },
+                      ],
+                      currentLessonId: 101,
+                    })
+                  }
+                >
                   <PlayCircle className="w-4 h-4 mr-2" />
                   Tiếp tục học
                 </Button>
