@@ -83,7 +83,7 @@ export default function UserManagement() {
               <SelectItem value="active">Hoạt động</SelectItem>
               <SelectItem value="suspended">Tạm khóa</SelectItem>
               <SelectItem value="invited">Đã mời</SelectItem>
-            </SelectContent>
+            </SelectContent> 
           </Select>
         </CardContent>
       </Card>

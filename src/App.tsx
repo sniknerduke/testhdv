@@ -351,8 +351,8 @@ export default function App() {
     
     if (currentPage === 'teacher-dashboard') return <TeacherDashboard onNavigate={setCurrentPage} />;
     if (currentPage === 'manage-courses') return <ManageCourses />;
-    if (currentPage === 'teacher-schedule') return <TeacherSchedule />;
-    if (currentPage === 'grade-assignments') return <GradeAssignments />;
+  if (currentPage === 'teacher-schedule') return <TeacherSchedule />;
+  if (currentPage === 'grade-assignments') return <GradeAssignments />;
     if (currentPage === 'student-list') return <StudentList />;
     if (currentPage === 'teacher-profile') return <TeacherProfile />;
     

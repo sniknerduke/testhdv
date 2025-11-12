@@ -175,11 +175,9 @@ export default function GradeAssignments() {
       </CardContent>
     </Card>
   );
-
   return (
     <div className="p-8">
       <h1 className="mb-6">Chấm bài tập</h1>
-
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
@@ -220,7 +218,7 @@ export default function GradeAssignments() {
           <TabsTrigger value="all">
             Tất cả ({submissions.length})
           </TabsTrigger>
-        </TabsList>
+        </TabsList> */
 
         <TabsContent value="pending" className="space-y-4 mt-6">
           {submissions.filter(s => s.status === 'pending').map(renderSubmissionCard)}
@@ -233,7 +231,7 @@ export default function GradeAssignments() {
           )}
         </TabsContent>
 
-        <TabsContent value="graded" className="space-y-4 mt-6">
+        <TabsContent value="graded" className="space-y-4 mt-6"> 
           {submissions.filter(s => s.status === 'graded').map(renderSubmissionCard)}
         </TabsContent>
 
