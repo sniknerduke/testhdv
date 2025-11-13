@@ -9,9 +9,10 @@ import { FaGoogle, FaFacebook } from 'react-icons/fa';
 interface LoginProps {
   onLogin: (role: string) => void;
   onNavigate: (page: string) => void;
+  adminOnly?: boolean;
 }
 
-export default function Login({ onLogin, onNavigate }: LoginProps) {
+export default function Login({ onLogin, onNavigate, adminOnly = false }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,6 +25,61 @@ export default function Login({ onLogin, onNavigate }: LoginProps) {
     alert(`Chức năng đăng nhập với ${provider} chưa được cài đặt.`);
   };
 
+  if (adminOnly) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Đăng nhập Admin</CardTitle>
+            <CardDescription>Chỉ dành cho quản trị viên hệ thống</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label>Email</Label>
+                <Input 
+                  type="email" 
+                  placeholder="admin@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Mật khẩu</Label>
+                <Input 
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <Button className="w-full" onClick={() => handleLogin('admin')}>
+                Đăng nhập quản trị
+              </Button>
+            </div>
+
+            <div className="relative my-4 py-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground py-2" >Hoặc</span>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button 
+                onClick={() => onNavigate('home')}
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Quay lại trang chủ
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -33,10 +89,9 @@ export default function Login({ onLogin, onNavigate }: LoginProps) {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="student">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="student">Học sinh</TabsTrigger>
               <TabsTrigger value="teacher">Giáo viên</TabsTrigger>
-              <TabsTrigger value="admin">Admin</TabsTrigger>
             </TabsList>
             
             <TabsContent value="student">
@@ -89,30 +144,7 @@ export default function Login({ onLogin, onNavigate }: LoginProps) {
               </div>
             </TabsContent>
             
-            <TabsContent value="admin">
-              <div className="space-y-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input 
-                    type="email" 
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Mật khẩu</Label>
-                  <Input 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <Button className="w-full" onClick={() => handleLogin('admin')}>
-                  Đăng nhập với tư cách Admin
-                </Button>
-              </div>
-            </TabsContent>
+            {null}
           </Tabs>
           
           <div className="relative my-4 py-2">

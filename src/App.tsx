@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Home, GraduationCap, Users, Settings, LogOut, Menu, Bell, ShoppingCart as CartIcon, FileText, BarChart, Award, User as UserIcon } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './components/ui/dropdown-menu';
@@ -41,6 +41,57 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const showSidebar = user && !['home', 'courses', 'course-detail', 'about', 'contact'].includes(currentPage);
 
+  // Simple path <-> page mapping to enable real URLs (e.g., /admin)
+  const pageToPath = useMemo(() => ({
+    // public
+    'home': '/',
+    'courses': '/courses',
+    'course-detail': '/course',
+    'about': '/about',
+    'contact': '/contact',
+    'login': '/login',
+    'register': '/register',
+    'forgot-password': '/forgot-password',
+    // student
+    'student-dashboard': '/student',
+    'my-courses': '/student/my-courses',
+    'course-content': '/student/course-content',
+    'student-profile': '/student/profile',
+    'shopping-cart': '/cart',
+    'checkout': '/checkout',
+    'assignments': '/student/assignments',
+    // teacher
+    'teacher-dashboard': '/teacher',
+    'manage-courses': '/teacher/manage-courses',
+    'teacher-schedule': '/teacher/schedule',
+    'grade-assignments': '/teacher/grade-assignments',
+    'student-list': '/teacher/students',
+    'teacher-profile': '/teacher/profile',
+    // admin
+    'admin-dashboard': '/admin',
+    'admin-analytics': '/admin/analytics',
+    'user-management': '/admin/users',
+    'admin-courses': '/admin/courses',
+    'admin-settings': '/admin/settings',
+  } as Record<string, string>), []);
+
+  const pathToPage = (path: string): string => {
+    const normalized = path.replace(/\/$/, '');
+    const entries = Object.entries(pageToPath);
+    for (const [page, p] of entries) {
+      if (p === normalized || (p !== '/' && normalized.startsWith(p))) return page;
+    }
+    return 'home';
+  };
+
+  const navigateTo = (page: string) => {
+    const path = pageToPath[page] ?? '/';
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+    setCurrentPage(page);
+  };
+
   // Simple in-memory notifications; could be loaded from API/localStorage later
   const [notifications, setNotifications] = useState<Array<{
     id: number;
@@ -63,19 +114,29 @@ export default function App() {
     // if (role === 'teacher') setCurrentPage('teacher-dashboard');
     // if (role === 'admin') setCurrentPage('admin-dashboard');
     // After login, always go to Home as requested
-    setCurrentPage('home');
+    navigateTo('home');
   };
 
   const handleLogout = () => {
     setUser(null);
-    setCurrentPage('home');
+    navigateTo('home');
   };
 
-  // Redirect guard: if user becomes null while on protected page, force home
-  if (!user && /^(student|teacher|admin)-/.test(currentPage)) {
+  // Redirect guard: if user becomes null while on protected page, force home (except admin path which shows admin login)
+  if (!user && /^(student|teacher)-/.test(currentPage)) {
     // simple synchronous guard; in real app use useEffect + router
-    setCurrentPage('home');
+    navigateTo('home');
   }
+
+  // Sync current page with URL on first load and back/forward
+  useEffect(() => {
+    const initial = pathToPage(window.location.pathname);
+    setCurrentPage(initial);
+    const onPopState = () => setCurrentPage(pathToPage(window.location.pathname));
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCourseSelect = (course: any) => {
     setSelectedCourse(course);
@@ -110,24 +171,24 @@ export default function App() {
                 <span className="font-bold text-xl">EduPlatform</span>
               </div>
               <div className="hidden md:flex gap-6">
-                <button onClick={() => setCurrentPage('home')} className="hover:text-blue-600">
+                <button onClick={() => navigateTo('home')} className="hover:text-blue-600">
                   Trang chủ
                 </button>
-                <button onClick={() => setCurrentPage('courses')} className="hover:text-blue-600">
+                <button onClick={() => navigateTo('courses')} className="hover:text-blue-600">
                   Khóa học
                 </button>
-                <button onClick={() => setCurrentPage('about')} className="hover:text-blue-600">
+                <button onClick={() => navigateTo('about')} className="hover:text-blue-600">
                   Giới thiệu
                 </button>
-                <button onClick={() => setCurrentPage('contact')} className="hover:text-blue-600">
+                <button onClick={() => navigateTo('contact')} className="hover:text-blue-600">
                   Liên hệ
                 </button>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => setCurrentPage('login')}>
+                <Button variant="ghost" onClick={() => navigateTo('login')}>
                   Đăng nhập
                 </Button>
-                <Button onClick={() => setCurrentPage('register')}>Đăng ký</Button>
+                <Button onClick={() => navigateTo('register')}>Đăng ký</Button>
               </div>
             </div>
           </div>
@@ -150,10 +211,10 @@ export default function App() {
             </div>
             {/* Centered quick nav (logged-in) */}
             <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
-              <button onClick={() => setCurrentPage('home')} className={`hover:text-blue-600 ${currentPage==='home'?'text-blue-600':''}`}>Trang chủ</button>
-              <button onClick={() => setCurrentPage('courses')} className={`hover:text-blue-600 ${currentPage==='courses'?'text-blue-600':''}`}>Khóa học</button>
-              <button onClick={() => setCurrentPage('about')} className={`hover:text-blue-600 ${currentPage==='about'?'text-blue-600':''}`}>Giới thiệu</button>
-              <button onClick={() => setCurrentPage('contact')} className={`hover:text-blue-600 ${currentPage==='contact'?'text-blue-600':''}`}>Liên hệ</button>
+              <button onClick={() => navigateTo('home')} className={`hover:text-blue-600 ${currentPage==='home'?'text-blue-600':''}`}>Trang chủ</button>
+              <button onClick={() => navigateTo('courses')} className={`hover:text-blue-600 ${currentPage==='courses'?'text-blue-600':''}`}>Khóa học</button>
+              <button onClick={() => navigateTo('about')} className={`hover:text-blue-600 ${currentPage==='about'?'text-blue-600':''}`}>Giới thiệu</button>
+              <button onClick={() => navigateTo('contact')} className={`hover:text-blue-600 ${currentPage==='contact'?'text-blue-600':''}`}>Liên hệ</button>
             </div>
             <div className="flex items-center gap-4">
               {/* Notifications popover */}
@@ -207,7 +268,7 @@ export default function App() {
               </Popover>
               {/* Cart shortcut for students */}
               {user === 'student' && (
-                <button onClick={() => setCurrentPage('shopping-cart')} title="Giỏ hàng" className="relative">
+                <button onClick={() => navigateTo('shopping-cart')} title="Giỏ hàng" className="relative">
                   <CartIcon className="w-5 h-5 text-gray-700" />
                 </button>
               )}
@@ -238,7 +299,7 @@ export default function App() {
                     </DropdownMenuItem>
                   )}
                   {user === 'admin' && (
-                    <DropdownMenuItem onClick={() => setCurrentPage('admin-dashboard')} className="cursor-pointer gap-2">
+                    <DropdownMenuItem onClick={() => navigateTo('admin-dashboard')} className="cursor-pointer gap-2">
                       <UserIcon className="w-4 h-4" /> Trang quản trị
                     </DropdownMenuItem>
                   )}
@@ -293,7 +354,7 @@ export default function App() {
             <button
               key={item.page}
               onClick={() => {
-                setCurrentPage(item.page);
+                navigateTo(item.page);
                 setSidebarOpen(false);
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 hover:bg-gray-100 ${
@@ -317,46 +378,52 @@ export default function App() {
   };
 
   const renderContent = () => {
-    if (currentPage === 'login') return <Login onLogin={handleLogin} onNavigate={setCurrentPage} />;
-    if (currentPage === 'register') return <Register onNavigate={setCurrentPage} />;
-    if (currentPage === 'forgot-password') return <ForgotPassword onNavigate={setCurrentPage} />;
-    if (currentPage === 'home') return <GuestHome onNavigate={setCurrentPage} onCourseSelect={handleCourseSelect} />;
+    if (currentPage === 'login') return <Login onLogin={handleLogin} onNavigate={navigateTo} />;
+    if (currentPage === 'register') return <Register onNavigate={navigateTo} />;
+    if (currentPage === 'forgot-password') return <ForgotPassword onNavigate={navigateTo} />;
+    if (currentPage === 'home') return <GuestHome onNavigate={navigateTo} onCourseSelect={handleCourseSelect} />;
     if (currentPage === 'courses') return (
       <CourseCatalog
         onCourseSelect={handleCourseSelect}
         userRole={user === 'student' || user === 'teacher' || user === 'admin' ? user : null}
         onAddToCart={handleAddToCart}
-        onRequestLogin={() => setCurrentPage('login')}
+        onRequestLogin={() => navigateTo('login')}
       />
     );
     if (currentPage === 'course-detail') return (
       <CourseDetail
         course={selectedCourse}
-        onNavigate={setCurrentPage}
+        onNavigate={navigateTo}
         userRole={user === 'student' || user === 'teacher' || user === 'admin' ? user : null}
         onAddToCart={handleAddToCart}
-        onRequestLogin={() => setCurrentPage('login')}
+        onRequestLogin={() => navigateTo('login')}
       />
     );
   if (currentPage === 'about') return <About />;
   if (currentPage === 'contact') return <Contact />;
     
-    if (currentPage === 'student-dashboard') return <StudentDashboard onNavigate={setCurrentPage} />;
-    if (currentPage === 'my-courses') return <MyCourses onCourseSelect={(course: any) => { setSelectedCourse(course); setCurrentPage('course-content'); }} />;
+    if (currentPage === 'student-dashboard') return <StudentDashboard onNavigate={navigateTo} />;
+    if (currentPage === 'my-courses') return <MyCourses onCourseSelect={(course: any) => { setSelectedCourse(course); navigateTo('course-content'); }} />;
     if (currentPage === 'course-content') return <CourseContent course={selectedCourse} />;
     if (currentPage === 'student-profile') return <StudentProfile />;
-    if (currentPage === 'shopping-cart') return <ShoppingCart onNavigate={setCurrentPage} />;
-    if (currentPage === 'checkout') return <Checkout onNavigate={setCurrentPage} />;
+    if (currentPage === 'shopping-cart') return <ShoppingCart onNavigate={navigateTo} />;
+    if (currentPage === 'checkout') return <Checkout onNavigate={navigateTo} />;
     if (currentPage === 'assignments') return <Assignments />;
     
-    if (currentPage === 'teacher-dashboard') return <TeacherDashboard onNavigate={setCurrentPage} />;
+    if (currentPage === 'teacher-dashboard') return <TeacherDashboard onNavigate={navigateTo} />;
     if (currentPage === 'manage-courses') return <ManageCourses />;
   if (currentPage === 'teacher-schedule') return <TeacherSchedule />;
   if (currentPage === 'grade-assignments') return <GradeAssignments />;
     if (currentPage === 'student-list') return <StudentList />;
     if (currentPage === 'teacher-profile') return <TeacherProfile />;
     
-  if (currentPage === 'admin-dashboard') return <AdminDashboard onNavigate={setCurrentPage} />;
+  if (currentPage === 'admin-dashboard') {
+    if (user !== 'admin') {
+      // Show admin-only login when visiting /admin without admin session
+      return <Login adminOnly onLogin={(role: string) => { setUser(role); navigateTo('admin-dashboard'); }} onNavigate={navigateTo} />;
+    }
+    return <AdminDashboard onNavigate={navigateTo} />;
+  }
   if (currentPage === 'admin-analytics') return <AdminAnalytics />;
   if (currentPage === 'user-management') return <UserManagement />;
   if (currentPage === 'admin-courses') return <CourseManagement />;

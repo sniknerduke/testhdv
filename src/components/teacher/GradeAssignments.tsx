@@ -218,7 +218,7 @@ export default function GradeAssignments() {
           <TabsTrigger value="all">
             Tất cả ({submissions.length})
           </TabsTrigger>
-        </TabsList> */
+        </TabsList>
 
         <TabsContent value="pending" className="space-y-4 mt-6">
           {submissions.filter(s => s.status === 'pending').map(renderSubmissionCard)}
