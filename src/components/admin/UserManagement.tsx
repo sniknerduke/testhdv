@@ -5,7 +5,7 @@ import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Badge } from '../ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-import { Search, ShieldBan, RefreshCcw, Eye } from 'lucide-react'
+import { Search, ShieldBan, RefreshCcw, Eye, UserPlus, UserMinus } from 'lucide-react'
 
 type UserRole = 'student' | 'teacher' | 'admin'
 type UserStatus = 'active' | 'suspended' | 'invited'
@@ -50,6 +50,14 @@ export default function UserManagement() {
   const resetPassword = (id: number) => {
     const user = users.find(u => u.id === id)
     alert(`Đã gửi email đặt lại mật khẩu cho ${user?.email}`)
+  }
+
+  const promoteToTeacher = (id: number) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, role: 'teacher' } : u))
+  }
+
+  const demoteToStudent = (id: number) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, role: 'student' } : u))
   }
 
   return (
@@ -120,14 +128,24 @@ export default function UserManagement() {
                   </TableCell>
                   <TableCell>{user.lastActive}</TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 px-2"><Eye className="w-4 h-4" /></Button>
-                      <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => toggleSuspend(user.id)}>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" className="h-8 px-2" title="Xem chi tiết"><Eye className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => toggleSuspend(user.id)} title={user.status === 'suspended' ? 'Mở khóa' : 'Tạm khóa'}>
                         <ShieldBan className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => resetPassword(user.id)}>
+                      <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => resetPassword(user.id)} title="Reset mật khẩu">
                         <RefreshCcw className="w-4 h-4" />
                       </Button>
+                      {user.role === 'teacher' && (
+                        <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => demoteToStudent(user.id)} title="Chuyển về học sinh">
+                          <UserMinus className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {user.role !== 'teacher' && user.role !== 'admin' && (
+                        <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => promoteToTeacher(user.id)} title="Chuyển thành giáo viên">
+                          <UserPlus className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

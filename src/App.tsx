@@ -32,8 +32,6 @@ import TeacherProfile from './components/teacher/TeacherProfile';
 import AdminDashboard from './components/admin/AdminDashboard';
 import UserManagement from './components/admin/UserManagement';
 import CourseManagement from './components/admin/CourseManagement';
-import AdminSettings from './components/admin/AdminSettings';
-import AdminAnalytics from './components/admin/AdminAnalytics';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -69,10 +67,8 @@ export default function App() {
     'teacher-profile': '/teacher/profile',
     // admin
     'admin-dashboard': '/admin',
-    'admin-analytics': '/admin/analytics',
     'user-management': '/admin/users',
     'admin-courses': '/admin/courses',
-    'admin-settings': '/admin/settings',
   } as Record<string, string>), []);
 
   const pathToPage = (path: string): string => {
@@ -349,10 +345,9 @@ export default function App() {
     } else if (user === 'admin') {
       menuItems = [
         { icon: Home, label: 'Dashboard', page: 'admin-dashboard' },
-        { icon: BarChart, label: 'Thống kê hệ thống', page: 'admin-analytics' },
+        // Analytics merged into dashboard; removed separate page
         { icon: Users, label: 'Quản lý người dùng', page: 'user-management' },
         { icon: BookOpen, label: 'Quản lý khóa học', page: 'admin-courses' },
-        { icon: Settings, label: 'Cài đặt', page: 'admin-settings' },
       ];
     }
 
@@ -436,10 +431,9 @@ export default function App() {
     }
     return <AdminDashboard onNavigate={navigateTo} />;
   }
-  if (currentPage === 'admin-analytics') return <AdminAnalytics />;
   if (currentPage === 'user-management') return <UserManagement />;
   if (currentPage === 'admin-courses') return <CourseManagement />;
-  if (currentPage === 'admin-settings') return <AdminSettings />;
+  // removed admin-settings page
     
     return <GuestHome onNavigate={setCurrentPage} onCourseSelect={handleCourseSelect} />;
   };

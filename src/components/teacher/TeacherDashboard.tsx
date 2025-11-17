@@ -1,12 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 import { BookOpen, Users, FileText, TrendingUp, ShieldCheck, AlertCircle, Activity, DollarSign, FileBarChart, FileDown, PlayCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Alert, AlertDescription } from '../ui/alert';
 import {
   AreaChart,
   Area,
@@ -499,14 +497,6 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
                   <span>Điểm trung bình thấp, cân nhắc bổ sung ví dụ minh họa và bài luyện tập.</span>
                 </div>
               )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2"><CardTitle>Ghi chú</CardTitle></CardHeader>
-            <CardContent className="text-sm text-gray-600">
-              • Lọc theo thời gian, nhóm học viên và bài học để khoanh vùng vấn đề.
-              <br />• Sử dụng nút xuất dữ liệu để phân tích chi tiết trong Excel/PDF.
-              <br />• Bật "So sánh kỳ trước" để đánh giá xu hướng.
             </CardContent>
           </Card>
         </div>
