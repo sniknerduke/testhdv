@@ -6,7 +6,6 @@ import { Badge } from '../ui/badge';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 import { BookOpen, Users, FileText, TrendingUp, ShieldCheck, AlertCircle, Activity, DollarSign, FileBarChart, FileDown, PlayCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import TeacherVerificationDialog from './TeacherVerificationDialog';
 import { Alert, AlertDescription } from '../ui/alert';
 import {
   AreaChart,
@@ -160,32 +159,8 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1>Dashboard Giáo viên</h1>
-        {!isVerified && (
-          <Button 
-            onClick={() => setVerificationDialogOpen(true)}
-            variant="outline"
-            className="gap-2"
-          >
-            <ShieldCheck className="w-4 h-4" />
-            Xác thực tài khoản
-          </Button>
-        )}
       </div>
 
-      {!isVerified && (
-        <Alert className="mb-6 border-yellow-200 bg-yellow-50">
-          <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            Tài khoản của bạn chưa được xác thực. 
-            <button 
-              onClick={() => setVerificationDialogOpen(true)}
-              className="underline ml-1 hover:text-yellow-900"
-            >
-              Xác thực ngay
-            </button> để mở khóa đầy đủ tính năng giảng dạy.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
@@ -253,49 +228,91 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
 
         {/* Filters */}
         <Card className="mb-6">
-          <CardContent className="p-4 grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger><SelectValue placeholder="Chọn khóa học" /></SelectTrigger>
-              <SelectContent>
-                {courses.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={range} onValueChange={setRange}>
-              <SelectTrigger><SelectValue placeholder="Khoảng thời gian" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">7 ngày</SelectItem>
-                <SelectItem value="30d">30 ngày</SelectItem>
-                <SelectItem value="90d">90 ngày</SelectItem>
-                <SelectItem value="ytd">YTD</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={segment} onValueChange={setSegment}>
-              <SelectTrigger><SelectValue placeholder="Nhóm học viên" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="new">Mới</SelectItem>
-                <SelectItem value="returning">Quay lại</SelectItem>
-                <SelectItem value="struggling">Gặp khó khăn</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={lesson} onValueChange={setLesson}>
-              <SelectTrigger><SelectValue placeholder="Bài học" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả bài</SelectItem>
-                <SelectItem value="1">Bài 1</SelectItem>
-                <SelectItem value="2">Bài 2</SelectItem>
-                <SelectItem value="3">Bài 3</SelectItem>
-                <SelectItem value="4">Bài 4</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex items-center gap-2">
-              <input id="compare" type="checkbox" className="accent-gray-600" checked={compare} onChange={(e) => setCompare(e.target.checked)} />
-              <label htmlFor="compare" className="text-sm text-gray-700">So sánh kỳ trước</label>
-            </div>
-          </CardContent>
-        </Card>
+  <CardContent className="p-4">
+    {/* --- GIẢI THÍCH THAY ĐỔI ---
+      1. 'flex': Giữ layout là flexbox.
+      2. 'flex-wrap': Đây là chìa khóa. Nó cho phép các item tự động
+         "rớt" xuống hàng mới nếu hàng hiện tại không còn đủ chỗ.
+      3. 'items-center': Căn giữa các item theo chiều dọc.
+      4. 'gap-4': Giữ khoảng cách giữa các item.
+      
+      Chúng ta bỏ 'flex-col' và 'md:flex-row' để nó luôn là 'flex-row'
+      nhưng linh hoạt.
+    */}
+    <div className="flex flex-wrap items-center gap-4">
+      {/* --- GIẢI THÍCH THAY ĐỔI ---
+        1. 'flex-1': Cho phép item này "lớn lên" (grow) để lấp đầy
+           không gian trống trên hàng.
+        2. 'min-w-[180px]': (Quan trọng) Đặt độ rộng tối thiểu cho
+           mỗi bộ lọc. Khi trình duyệt thấy không gian hẹp hơn 180px,
+           nó sẽ đẩy item này xuống hàng mới (nhờ 'flex-wrap' ở trên).
+           Bạn có thể điều chỉnh 180px thành 200px, 220px... tùy ý.
+        
+        Chúng ta bỏ 'md:w-[20%]' để nó linh hoạt hơn theo không gian.
+      */}
+      <div className="flex-1 min-w-[180px]">
+        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+          <SelectTrigger><SelectValue placeholder="Chọn khóa học" /></SelectTrigger>
+          <SelectContent>
+            {courses.map(c => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Áp dụng tương tự cho các bộ lọc khác */}
+      <div className="flex-1 min-w-[180px]">
+        <Select value={range} onValueChange={setRange}>
+          <SelectTrigger><SelectValue placeholder="Khoảng thời gian" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7d">7 ngày</SelectItem>
+            <SelectItem value="30d">30 ngày</SelectItem>
+            <SelectItem value="90d">90 ngày</SelectItem>
+            <SelectItem value="ytd">YTD</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="flex-1 min-w-[180px]">
+        <Select value={segment} onValueChange={setSegment}>
+          <SelectTrigger><SelectValue placeholder="Nhóm học viên" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="new">Mới</SelectItem>
+            <SelectItem value="returning">Quay lại</SelectItem>
+            <SelectItem value="struggling">Gặp khó khăn</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="flex-1 min-w-[180px]">
+        <Select value={lesson} onValueChange={setLesson}>
+          <SelectTrigger><SelectValue placeholder="Bài học" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả bài</SelectItem>
+            <SelectItem value="1">Bài 1</SelectItem>
+            <SelectItem value="2">Bài 2</SelectItem>
+            <SelectItem value="3">Bài 3</SelectItem>
+            <SelectItem value="4">Bài 4</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {/* Đối với checkbox, chúng ta cũng có thể cho nó 'flex-1'
+        để nó cân bằng với các item khác, hoặc bỏ 'flex-1'
+        để nó chỉ chiếm vừa đủ không gian.
+        Ở đây tôi thêm 'whitespace-nowrap' để label không bị vỡ.
+      */}
+      <div className="flex items-center gap-2">
+        <input id="compare" type="checkbox" className="accent-gray-600" checked={compare} onChange={(e) => setCompare(e.target.checked)} />
+        <label htmlFor="compare" className="text-sm text-gray-700 whitespace-nowrap">
+          So sánh kỳ trước
+        </label>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
         {error && (
           <Card className="mb-6 border-red-300">
@@ -494,11 +511,6 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
           </Card>
         </div>
       </div>
-
-      <TeacherVerificationDialog 
-        open={verificationDialogOpen}
-        onOpenChange={setVerificationDialogOpen}
-      />
     </div>
   );
 }
