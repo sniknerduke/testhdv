@@ -43,7 +43,7 @@ export default function GuestHome({ onNavigate, onCourseSelect }: GuestHomeProps
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
-          <h1 className="mb-4">Học tập không giới hạn</h1>
+          <h1 className="mb-4 text-4xl font-bold">Học tập không giới hạn</h1>
           <p className="text-xl mb-8 opacity-90 max-w-3xl">
             Khám phá hàng nghìn khóa học chất lượng cao từ các giảng viên hàng đầu
           </p>
@@ -63,32 +63,7 @@ export default function GuestHome({ onNavigate, onCourseSelect }: GuestHomeProps
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <BookOpen className="w-12 h-12 mx-auto mb-3 text-blue-600" />
-              <div className="text-3xl mb-2">500+</div>
-              <div className="text-gray-600">Khóa học</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Users className="w-12 h-12 mx-auto mb-3 text-blue-600" />
-              <div className="text-3xl mb-2">10,000+</div>
-              <div className="text-gray-600">Học sinh</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Star className="w-12 h-12 mx-auto mb-3 text-blue-600" />
-              <div className="text-3xl mb-2">4.8/5</div>
-              <div className="text-gray-600">Đánh giá</div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      
 
       {/* Featured Courses */}
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -118,7 +93,32 @@ export default function GuestHome({ onNavigate, onCourseSelect }: GuestHomeProps
           ))}
         </div>
       </div>
-
+          {/* Stats Section */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <BookOpen className="w-12 h-12 mx-auto mb-3 text-blue-600" />
+              <div className="text-3xl mb-2">500+</div>
+              <div className="text-gray-600">Khóa học</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Users className="w-12 h-12 mx-auto mb-3 text-blue-600" />
+              <div className="text-3xl mb-2">10,000+</div>
+              <div className="text-gray-600">Học sinh</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Star className="w-12 h-12 mx-auto mb-3 text-blue-600" />
+              <div className="text-3xl mb-2">4.8/5</div>
+              <div className="text-gray-600">Đánh giá</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300">
         <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">

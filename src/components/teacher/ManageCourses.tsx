@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -7,71 +7,18 @@ import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Badge } from '../ui/badge';
-import { Plus, Edit, Trash2, Users, BookOpen, Clock, DollarSign, Eye, FileDown, CalendarIcon, Upload, FileText } from 'lucide-react';
-import { Calendar } from '../ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { Plus, Edit, Trash2, BookOpen, Clock, DollarSign, Eye, Save, X, PlusCircle, Users } from 'lucide-react';
+import { ensureSeedData, getCourses, Course as SvcCourse } from '../../services/courseService';
 import { toast } from 'sonner';
 
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  level: string;
-  price: number;
-  duration: string;
-  students: number;
-  status: 'published' | 'draft';
-}
+type Course = SvcCourse;
 
-type StudentStatus = 'not-started' | 'in-progress' | 'completed';
-
-interface Student {
-  id: number;
-  name: string;
-  email: string;
-  enrolledAt: string; // ISO or display date
-  status: StudentStatus;
-}
-
-export default function ManageCourses() {
-  const [courses, setCourses] = useState<Course[]>([
-    {
-      id: 1,
-      title: 'React từ cơ bản đến nâng cao',
-      description: 'Khóa học React toàn diện từ cơ bản đến nâng cao với các dự án thực tế',
-      category: 'Programming',
-      level: 'Intermediate',
-      price: 1500000,
-      duration: '40 giờ',
-      students: 245,
-      status: 'published'
-    },
-    {
-      id: 2,
-      title: 'TypeScript cho người mới',
-      description: 'Học TypeScript từ đầu với các ví dụ thực tế',
-      category: 'Programming',
-      level: 'Beginner',
-      price: 1200000,
-      duration: '30 giờ',
-      students: 180,
-      status: 'published'
-    },
-    {
-      id: 3,
-      title: 'Node.js Backend Development',
-      description: 'Xây dựng RESTful API và ứng dụng backend với Node.js',
-      category: 'Programming',
-      level: 'Advanced',
-      price: 2000000,
-      duration: '50 giờ',
-      students: 156,
-      status: 'draft'
-    }
-  ]);
+export default function ManageCourses({ onOpenCourse }: { onOpenCourse?: (course: Course) => void }) {
+  const [courses, setCourses] = useState<Course[]>([]);
+  useEffect(() => {
+    ensureSeedData();
+    getCourses().then(setCourses);
+  }, []);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -85,104 +32,7 @@ export default function ManageCourses() {
     status: 'draft' as 'published' | 'draft'
   });
 
-  // Mock enrolled students per course
-  const studentRegistry: Record<number, Student[]> = {
-    1: [
-      { id: 101, name: 'Nguyễn Văn A', email: 'a.nguyen@example.com', enrolledAt: '2025-08-02', status: 'in-progress' },
-      { id: 102, name: 'Trần Thị B', email: 'b.tran@example.com', enrolledAt: '2025-08-05', status: 'completed' },
-      { id: 103, name: 'Lê Văn C', email: 'c.le@example.com', enrolledAt: '2025-08-10', status: 'not-started' },
-      { id: 104, name: 'Phạm Thị D', email: 'd.pham@example.com', enrolledAt: '2025-08-12', status: 'in-progress' },
-      { id: 105, name: 'Hoàng Văn E', email: 'e.hoang@example.com', enrolledAt: '2025-08-14', status: 'completed' },
-    ],
-    2: [
-      { id: 201, name: 'Bùi Minh F', email: 'f.bui@example.com', enrolledAt: '2025-07-20', status: 'completed' },
-      { id: 202, name: 'Đỗ Thu G', email: 'g.do@example.com', enrolledAt: '2025-07-22', status: 'in-progress' },
-      { id: 203, name: 'Phan Anh H', email: 'h.phan@example.com', enrolledAt: '2025-07-23', status: 'in-progress' },
-      { id: 204, name: 'Võ Thị I', email: 'i.vo@example.com', enrolledAt: '2025-07-28', status: 'not-started' },
-    ],
-    3: [
-      { id: 301, name: 'Trịnh Quốc K', email: 'k.trinh@example.com', enrolledAt: '2025-06-03', status: 'in-progress' },
-      { id: 302, name: 'Phùng Gia L', email: 'l.phung@example.com', enrolledAt: '2025-06-05', status: 'not-started' },
-    ],
-  };
-
-  // State for View Students dialog
-  const [studentsDialogOpen, setStudentsDialogOpen] = useState(false);
-  const [studentsCourse, setStudentsCourse] = useState<Course | null>(null);
-  const [studentSearch, setStudentSearch] = useState('');
-  const [studentStatus, setStudentStatus] = useState<'all' | StudentStatus>('all');
-
-  const currentStudents: Student[] = studentsCourse ? (studentRegistry[studentsCourse.id] || []) : [];
-  const filteredStudents = currentStudents.filter((s) => {
-    const matchesSearch = `${s.name} ${s.email}`.toLowerCase().includes(studentSearch.toLowerCase());
-    const matchesStatus = studentStatus === 'all' ? true : s.status === studentStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  const openStudents = (course: Course) => {
-    setStudentsCourse(course);
-    setStudentSearch('');
-    setStudentStatus('all');
-    setStudentsDialogOpen(true);
-  };
-
-  const exportStudentsCSV = () => {
-    if (!studentsCourse) return;
-    const rows: string[] = [];
-    rows.push('Họ tên,Email,Ngày đăng ký,Trạng thái');
-    filteredStudents.forEach((s) => {
-      const statusLabel = s.status === 'completed' ? 'Hoàn thành' : s.status === 'in-progress' ? 'Đang học' : 'Chưa bắt đầu';
-      rows.push(`${s.name},${s.email},${s.enrolledAt},${statusLabel}`);
-    });
-    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `students-course-${studentsCourse.id}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // State for Create Assignment dialog
-  const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
-  const [assignmentCourse, setAssignmentCourse] = useState<Course | null>(null);
-  const [assignmentForm, setAssignmentForm] = useState({
-    title: '',
-    description: '',
-    maxScore: '10',
-    allowResubmit: true,
-  });
-  const [assignmentDeadline, setAssignmentDeadline] = useState<Date | undefined>(undefined);
-  const [attachment, setAttachment] = useState<File | null>(null);
-
-  const openAssignment = (course: Course) => {
-    setAssignmentCourse(course);
-    setAssignmentForm({ title: '', description: '', maxScore: '10', allowResubmit: true });
-    setAssignmentDeadline(undefined);
-    setAttachment(null);
-    setAssignmentDialogOpen(true);
-  };
-
-  const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setAttachment(e.target.files[0]);
-    }
-  };
-
-  const submitAssignment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!assignmentCourse) {
-      toast.error('Vui lòng chọn khóa học hợp lệ.');
-      return;
-    }
-    if (!assignmentDeadline) {
-      toast.error('Vui lòng chọn hạn nộp.');
-      return;
-    }
-    // Mock success
-    toast.success(`Đã tạo bài tập cho khóa: ${assignmentCourse.title}`);
-    setAssignmentDialogOpen(false);
-  };
+  // Inline lesson editor removed in favor of dedicated page
 
   const handleCreateCourse = () => {
     setEditingCourse(null);
@@ -247,6 +97,8 @@ export default function ManageCourses() {
     ));
     toast.success('Cập nhật trạng thái khóa học thành công!');
   };
+
+  // Lesson CRUD moved to TeacherCourseContentManager
 
   return (
     <div className="p-8">
@@ -413,8 +265,8 @@ export default function ManageCourses() {
       {/* Course List */}
       <div className="grid grid-cols-1 gap-6">
         {courses.map((course) => (
-          <Card key={course.id}>
-            <CardContent className="p-6">
+          <Card key={course.id} className="cursor-pointer" onClick={() => onOpenCourse ? onOpenCourse(course) : undefined}>
+            <CardContent className="p-6" onClick={(e) => { e.stopPropagation(); /* allow buttons inside to handle own click */ }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-start gap-4">
@@ -423,7 +275,7 @@ export default function ManageCourses() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold">{course.title}</h3>
+                        <h3 className="font-semibold" onClick={() => onOpenCourse ? onOpenCourse(course) : undefined}>{course.title}</h3>
                         <Badge variant={course.status === 'published' ? 'default' : 'secondary'}>
                           {course.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
                         </Badge>
@@ -452,16 +304,9 @@ export default function ManageCourses() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openAssignment(course)}
+                    onClick={(e) => { e.stopPropagation(); onOpenCourse ? onOpenCourse(course) : undefined; }}
                   >
-                    <FileText className="w-4 h-4 mr-1" /> Bài tập
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openStudents(course)}
-                  >
-                    <Users className="w-4 h-4 mr-1" /> Học viên
+                    <PlusCircle className="w-4 h-4 mr-1" /> Bài học
                   </Button>
                   <Button
                     variant="outline"
@@ -505,201 +350,11 @@ export default function ManageCourses() {
         </Card>
       )}
 
-      {/* Dialog: Danh sách học viên của khóa */}
-      <Dialog open={studentsDialogOpen} onOpenChange={setStudentsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>
-              Danh sách học viên{studentsCourse ? ` - ${studentsCourse.title}` : ''}
-            </DialogTitle>
-            <DialogDescription>
-              Xem, lọc, tìm kiếm và xuất danh sách học viên đã đăng ký khóa học.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-            <Input
-              placeholder="Tìm theo tên hoặc email..."
-              value={studentSearch}
-              onChange={(e) => setStudentSearch(e.target.value)}
-            />
-            <Select value={studentStatus} onValueChange={(v: 'all' | StudentStatus) => setStudentStatus(v)}>
-              <SelectTrigger><SelectValue placeholder="Trạng thái" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                <SelectItem value="not-started">Chưa bắt đầu</SelectItem>
-                <SelectItem value="in-progress">Đang học</SelectItem>
-                <SelectItem value="completed">Hoàn thành</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex justify-end">
-              <Button variant="outline" className="inline-flex items-center gap-2" onClick={exportStudentsCSV}>
-                <FileDown className="w-4 h-4" /> Xuất CSV
-              </Button>
-            </div>
-          </div>
-          <div className="border rounded-md">
-            <StudentsTable students={filteredStudents} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setStudentsDialogOpen(false)}>Đóng</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog: Tạo bài tập (bê UI từ CreateAssignment) */}
-      <Dialog open={assignmentDialogOpen} onOpenChange={setAssignmentDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Tạo bài tập mới</DialogTitle>
-            <DialogDescription>
-              Giao bài tập cho học viên trong khóa học đã chọn
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={submitAssignment} className="space-y-6">
-            <div>
-              <Label>Khóa học</Label>
-              <Input value={assignmentCourse?.title || ''} readOnly disabled />
-            </div>
-
-            <div>
-              <Label>Tiêu đề bài tập</Label>
-              <Input
-                value={assignmentForm.title}
-                onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
-                placeholder="Ví dụ: Bài tập 1: React Hooks"
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Mô tả yêu cầu</Label>
-              <Textarea
-                value={assignmentForm.description}
-                onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
-                placeholder="Nhập mô tả chi tiết về yêu cầu bài tập..."
-                rows={6}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Hạn nộp</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full justify-start text-left">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {assignmentDeadline ? (
-                        format(assignmentDeadline, 'PPP', { locale: vi })
-                      ) : (
-                        <span>Chọn ngày</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={assignmentDeadline} onSelect={setAssignmentDeadline} initialFocus />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <Label>Điểm tối đa</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={assignmentForm.maxScore}
-                  onChange={(e) => setAssignmentForm({ ...assignmentForm, maxScore: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>Tài liệu đính kèm (tùy chọn)</Label>
-              <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
-                <input type="file" id="assignment-file" className="hidden" onChange={handleAttachmentChange} />
-                <label htmlFor="assignment-file" className="cursor-pointer">
-                  {attachment ? (
-                    <div className="space-y-2">
-                      <FileText className="w-12 h-12 mx-auto text-blue-600" />
-                      <p className="text-sm">{attachment.name}</p>
-                      <p className="text-xs text-gray-500">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Upload className="w-12 h-12 mx-auto text-gray-400" />
-                      <p className="text-sm text-gray-600">Click để đính kèm file mẫu hoặc tài liệu hướng dẫn</p>
-                      <p className="text-xs text-gray-500">PDF, DOC, DOCX, ZIP (Tối đa 50MB)</p>
-                    </div>
-                  )}
-                </label>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="allow-resubmit"
-                checked={assignmentForm.allowResubmit}
-                onChange={(e) => setAssignmentForm({ ...assignmentForm, allowResubmit: e.target.checked })}
-                className="rounded"
-              />
-              <Label htmlFor="allow-resubmit" className="cursor-pointer">Cho phép học sinh nộp lại bài</Label>
-            </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setAssignmentDialogOpen(false)}>Hủy</Button>
-              <Button type="submit">Tạo bài tập</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Inline lesson panel removed; use dedicated Course Content Manager page */}
     </div>
   );
 }
 
-// Sub-component: Students Table
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+// Helper functions
+// (Không còn sub-component học viên hay bài tập; chỉ quản lý bài học.)
 
-function StatusBadge({ status }: { status: StudentStatus }) {
-  const map = {
-    'not-started': { label: 'Chưa bắt đầu', className: 'bg-gray-100 text-gray-700' },
-    'in-progress': { label: 'Đang học', className: 'bg-blue-100 text-blue-700' },
-    'completed': { label: 'Hoàn thành', className: 'bg-green-100 text-green-700' },
-  } as const;
-  const info = map[status];
-  return <Badge className={info.className}>{info.label}</Badge>;
-}
-
-function StudentsTable({ students }: { students: Student[] }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Họ tên</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Ngày đăng ký</TableHead>
-          <TableHead>Trạng thái</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {students.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={4} className="text-center text-gray-500 py-6">Không có học viên phù hợp</TableCell>
-          </TableRow>
-        ) : (
-          students.map((s) => (
-            <TableRow key={s.id}>
-              <TableCell>{s.name}</TableCell>
-              <TableCell>{s.email}</TableCell>
-              <TableCell>{new Date(s.enrolledAt).toLocaleDateString('vi-VN')}</TableCell>
-              <TableCell>
-                <StatusBadge status={s.status} />
-              </TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
-  );
-}

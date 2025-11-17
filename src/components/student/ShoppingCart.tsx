@@ -1,42 +1,43 @@
+import { useEffect, useState } from 'react';
+import { formatCurrency } from '../ui/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Trash2, ShoppingCart as CartIcon } from 'lucide-react';
 import { Badge } from '../ui/badge';
 
-interface ShoppingCartProps {
-  onNavigate: (page: string) => void;
+interface ShoppingCartProps { onNavigate: (page: string) => void; }
+
+export interface CartItem {
+  id: string | number;
+  title: string;
+  instructor?: string;
+  price: number;
+  image?: string;
 }
 
-// Mock data
-const cartItems = [
-  {
-    id: 1,
-    title: 'Lập trình React từ cơ bản đến nâng cao',
-    instructor: 'Nguyễn Văn A',
-    price: 599000,
-    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=200&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'Thiết kế UI/UX với Figma',
-    instructor: 'Trần Thị B',
-    price: 499000,
-    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop'
-  }
-];
-
 export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
-  const total = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const [items, setItems] = useState<CartItem[]>([]);
 
-  const handleRemove = (id: number) => {
-    alert(`Đã xóa khóa học ID ${id} khỏi giỏ hàng`);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('cart');
+      if (raw) setItems(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const total = items.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  const handleRemove = (id: string | number) => {
+    const next = items.filter(i => i.id !== id);
+    setItems(next);
+    try { localStorage.setItem('cart', JSON.stringify(next)); } catch {}
   };
 
   const handleCheckout = () => {
     onNavigate('checkout');
   };
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="p-8">
         <h1 className="mb-6">Giỏ hàng</h1>
@@ -55,11 +56,11 @@ export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6">Giỏ hàng ({cartItems.length} khóa học)</h1>
+      <h1 className="mb-6">Giỏ hàng ({items.length} khóa học)</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
@@ -70,11 +71,11 @@ export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
                   />
                   <div className="flex-1">
                     <h3 className="mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-600 mb-2">Giảng viên: {item.instructor}</p>
+                    {item.instructor && <p className="text-sm text-gray-600 mb-2">Giảng viên: {item.instructor}</p>}
                     <Badge variant="secondary">Bestseller</Badge>
                   </div>
                   <div className="text-right">
-                    <p className="mb-2">{item.price.toLocaleString('vi-VN')}đ</p>
+                    <p className="mb-2">{formatCurrency(item.price)}</p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -99,7 +100,7 @@ export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tạm tính:</span>
-                <span>{total.toLocaleString('vi-VN')}đ</span>
+                <span>{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Giảm giá:</span>
@@ -108,7 +109,7 @@ export default function ShoppingCart({ onNavigate }: ShoppingCartProps) {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-4">
                   <span>Tổng:</span>
-                  <span className="text-xl">{total.toLocaleString('vi-VN')}đ</span>
+                  <span className="text-xl">{formatCurrency(total)}</span>
                 </div>
                 <Button className="w-full" onClick={handleCheckout}>
                   Thanh toán

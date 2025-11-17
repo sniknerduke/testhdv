@@ -21,12 +21,13 @@ import CourseContent from './components/student/CourseContent';
 import StudentProfile from './components/student/StudentProfile';
 import ShoppingCart from './components/student/ShoppingCart';
 import Checkout from './components/student/Checkout';
-import Assignments from './components/student/Assignments';
+// Removed assignments feature
+// import Assignments from './components/student/Assignments';
+import TransactionHistory from './components/student/TransactionHistory';
 import TeacherDashboard from './components/teacher/TeacherDashboard';
 import ManageCourses from './components/teacher/ManageCourses';
-import TeacherSchedule from './components/teacher/TeacherSchedule';
-import GradeAssignments from './components/teacher/GradeAssignments';
-import StudentList from './components/teacher/StudentList';
+import TeacherCourseContentManager from './components/teacher/TeacherCourseContentManager';
+// Removed: TeacherSchedule, GradeAssignments, StudentList
 import TeacherProfile from './components/teacher/TeacherProfile';
 import AdminDashboard from './components/admin/AdminDashboard';
 import UserManagement from './components/admin/UserManagement';
@@ -59,13 +60,12 @@ export default function App() {
     'student-profile': '/student/profile',
     'shopping-cart': '/cart',
     'checkout': '/checkout',
-    'assignments': '/student/assignments',
+    'transaction-history': '/student/transactions',
     // teacher
     'teacher-dashboard': '/teacher',
     'manage-courses': '/teacher/manage-courses',
-    'teacher-schedule': '/teacher/schedule',
-    'grade-assignments': '/teacher/grade-assignments',
-    'student-list': '/teacher/students',
+    'teacher-course-content': '/teacher/course-content',
+    // removed routes for schedule, grading, student list
     'teacher-profile': '/teacher/profile',
     // admin
     'admin-dashboard': '/admin',
@@ -149,7 +149,19 @@ export default function App() {
       const arr = raw ? JSON.parse(raw) : [];
       // de-duplicate by id if exists
       if (!arr.find((c: any) => c.id === course.id)) {
-        arr.push({ id: course.id, title: course.title, price: course.price, instructor: course.instructor, image: course.image });
+        // Normalize price: accept number or string like '500,000đ'
+        const numericPrice = typeof course.price === 'number'
+          ? course.price
+          : (typeof course.price === 'string'
+              ? Number(course.price.replace(/[^0-9]/g, ''))
+              : 0);
+        arr.push({
+          id: course.id,
+            title: course.title,
+            price: numericPrice,
+            instructor: course.instructor,
+            image: course.image
+        });
         localStorage.setItem('cart', JSON.stringify(arr));
         toast.success('Đã thêm vào giỏ hàng');
       } else {
@@ -326,15 +338,12 @@ export default function App() {
         { icon: BookOpen, label: 'Khóa học của tôi', page: 'my-courses' },
         { icon: Users, label: 'Hồ sơ', page: 'student-profile' },
         { icon: CartIcon, label: 'Giỏ hàng', page: 'shopping-cart' },
-        { icon: FileText, label: 'Bài tập', page: 'assignments' },
+        { icon: FileText, label: 'Giao dịch', page: 'transaction-history' },
       ];
     } else if (user === 'teacher') {
       menuItems = [
         { icon: Home, label: 'Dashboard', page: 'teacher-dashboard' },
         { icon: BookOpen, label: 'Quản lý khóa học', page: 'manage-courses' },
-        { icon: Users, label: 'Lịch dạy', page: 'teacher-schedule' },
-        { icon: Award, label: 'Chấm bài', page: 'grade-assignments' },
-        { icon: Users, label: 'Danh sách học sinh', page: 'student-list' },
         { icon: Users, label: 'Hồ sơ', page: 'teacher-profile' },
       ];
     } else if (user === 'admin') {
@@ -408,13 +417,16 @@ export default function App() {
     if (currentPage === 'student-profile') return <StudentProfile />;
     if (currentPage === 'shopping-cart') return <ShoppingCart onNavigate={navigateTo} />;
     if (currentPage === 'checkout') return <Checkout onNavigate={navigateTo} />;
-    if (currentPage === 'assignments') return <Assignments />;
+    if (currentPage === 'transaction-history') return <TransactionHistory onNavigate={navigateTo} />;
     
     if (currentPage === 'teacher-dashboard') return <TeacherDashboard onNavigate={navigateTo} />;
-    if (currentPage === 'manage-courses') return <ManageCourses />;
-  if (currentPage === 'teacher-schedule') return <TeacherSchedule />;
-  if (currentPage === 'grade-assignments') return <GradeAssignments />;
-    if (currentPage === 'student-list') return <StudentList />;
+    if (currentPage === 'manage-courses') return (
+      <ManageCourses onOpenCourse={(course: any) => { setSelectedCourse(course); localStorage.setItem('last_course_id', String(course.id)); navigateTo('teacher-course-content'); }} />
+    );
+    if (currentPage === 'teacher-course-content') return (
+      <TeacherCourseContentManager course={selectedCourse} onNavigate={navigateTo} />
+    );
+  // removed teacher-schedule, grade-assignments, student-list pages
     if (currentPage === 'teacher-profile') return <TeacherProfile />;
     
   if (currentPage === 'admin-dashboard') {

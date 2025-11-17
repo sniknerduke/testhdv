@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
@@ -40,7 +40,7 @@ export default function CourseContent({ course }: CourseContentProps) {
   const notesKey = course && activeLesson ? `edu_notes_${course.id}_${activeLesson.id}` : '';
 
   const [notes, setNotes] = useState<string>('');
-  const [zoomOpen, setZoomOpen] = useState(false);
+  // const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     if (!course || !storageKey) return;
@@ -99,10 +99,12 @@ export default function CourseContent({ course }: CourseContentProps) {
     <div className="p-6 md:p-8">
       <div className="grid lg:grid-cols-12 gap-6">
         {/* Main player and controls */}
-        <div className="lg:col-span-8">
+         <div className="lg:col-span-8 order-2 lg:order-1">
           <Card className="mb-4 overflow-hidden">
-            <div className="aspect-video bg-gray-900 flex items-center justify-center">
-              <PlayCircle className="w-16 h-16 text-white" />
+            <div className="flex justify-center py-4 bg-gray-100">
+              <div className="w-full max-w-xl aspect-video bg-gray-900 rounded flex items-center justify-center shadow">
+                <PlayCircle className="w-12 h-12 text-white" />
+              </div>
             </div>
             <CardContent className="p-4 md:p-6">
               <div className="flex items-start justify-between gap-4">
@@ -117,11 +119,7 @@ export default function CourseContent({ course }: CourseContentProps) {
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                {activeLesson?.hasLive && (
-                  <Button onClick={() => setZoomOpen(true)} className="inline-flex items-center gap-2">
-                    <Video className="w-4 h-4" /> Vào phòng Zoom
-                  </Button>
-                )}
+                {/* Zoom button removed */}
                 <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
                   <Tv className="w-4 h-4" /> Chế độ tập trung
                 </Button>
@@ -188,11 +186,11 @@ export default function CourseContent({ course }: CourseContentProps) {
         </div>
 
         {/* Sidebar lessons */}
-        <div className="lg:col-span-4">
+         <div className="lg:col-span-4 order-1 lg:order-2">
           <Card>
             <CardContent className="p-0">
-              <div className="px-4 py-3 border-b"><h3 className="text-base font-medium">Danh sách bài học</h3></div>
-              <ul className="max-h-[60vh] overflow-y-auto">
+              <div className="px-4 py-3 border-b sticky top-0 bg-white z-10"><h3 className="text-base font-medium">Danh sách bài học</h3></div>
+              <ul className="max-h-[calc(100vh-12rem)] overflow-y-auto">
                 {lessons.map((l) => {
                   const isActive = l.id === activeLessonId;
                   return (
@@ -214,7 +212,7 @@ export default function CourseContent({ course }: CourseContentProps) {
                             <div className="text-xs text-gray-500">{l.duration || ''}</div>
                           </div>
                         </div>
-                        {l.hasLive && <span className="text-[10px] uppercase tracking-wide text-pink-600">Live</span>}
+                         {/* Live badge removed */}
                       </button>
                     </li>
                   );
@@ -226,28 +224,7 @@ export default function CourseContent({ course }: CourseContentProps) {
       </div>
 
       {/* Zoom Dialog */}
-      <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tham gia phòng Zoom</DialogTitle>
-          </DialogHeader>
-          {activeLesson?.liveLink ? (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-700">Bạn sắp tham gia buổi học trực tiếp của bài: <span className="font-medium">{activeLesson.title}</span></p>
-              <div className="flex items-center gap-2">
-                <LinkIcon className="w-4 h-4 text-gray-500" />
-                <a href={activeLesson.liveLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline break-all">{activeLesson.liveLink}</a>
-              </div>
-              <div className="flex gap-2">
-                <Button asChild><a href={activeLesson.liveLink} target="_blank" rel="noreferrer">Mở Zoom</a></Button>
-                <Button variant="outline" onClick={() => setZoomOpen(false)}>Đóng</Button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-600">Không tìm thấy link phòng học.</p>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Zoom dialog removed */}
     </div>
   );
 }

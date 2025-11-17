@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { formatCurrency } from '../ui/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -6,8 +7,14 @@ import { Label } from '../ui/label';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { CreditCard, Wallet, Building2, CheckCircle2 } from 'lucide-react';
 
-interface CheckoutProps {
-  onNavigate: (page: string) => void;
+interface CheckoutProps { onNavigate: (page: string) => void; }
+
+interface PurchaseRecord {
+  id: string; // uuid-like or timestamp
+  time: string; // ISO
+  items: Array<{ id: string | number; title: string; price: number }>;
+  total: number;
+  method: string;
 }
 
 export default function Checkout({ onNavigate }: CheckoutProps) {
@@ -15,7 +22,18 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
 
-  const cartTotal = 1098000;
+  const [cartItems, setCartItems] = useState<Array<{ id: string | number; title: string; price: number }>>([]);
+  const cartTotal = cartItems.reduce((sum, i) => sum + (i.price || 0), 0);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('cart');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setCartItems(parsed.map((c: any) => ({ id: c.id, title: c.title, price: c.price })));
+      }
+    } catch {}
+  }, []);
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,10 +43,27 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
     setTimeout(() => {
       setIsProcessing(false);
       setIsPaid(true);
-      
-      // Redirect to my courses after 2 seconds
+
+      // Record purchase history
+      try {
+        const rawTx = localStorage.getItem('transactions');
+        const existing: PurchaseRecord[] = rawTx ? JSON.parse(rawTx) : [];
+        const record: PurchaseRecord = {
+          id: Date.now().toString(),
+          time: new Date().toISOString(),
+          items: cartItems.map(i => ({ id: i.id, title: i.title, price: i.price })),
+          total: cartTotal,
+          method: paymentMethod,
+        };
+        existing.unshift(record);
+        localStorage.setItem('transactions', JSON.stringify(existing));
+        // Clear cart
+        localStorage.removeItem('cart');
+      } catch {}
+
+      // Redirect to transaction history after 2 seconds
       setTimeout(() => {
-        onNavigate('my-courses');
+        onNavigate('transaction-history');
       }, 2000);
     }, 2000);
   };
@@ -168,8 +203,8 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
             <CardContent className="space-y-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">2 khóa học</span>
-                  <span>{cartTotal.toLocaleString('vi-VN')}đ</span>
+                  <span className="text-gray-600">{cartItems.length} khóa học</span>
+                  <span>{formatCurrency(cartTotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Giảm giá:</span>
@@ -179,7 +214,7 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span>Tổng cộng:</span>
-                  <span className="text-xl">{cartTotal.toLocaleString('vi-VN')}đ</span>
+                  <span className="text-xl">{formatCurrency(cartTotal)}</span>
                 </div>
               </div>
               <div className="text-xs text-gray-500">
