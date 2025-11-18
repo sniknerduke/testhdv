@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { CreditCard, Wallet, Building2, CheckCircle2 } from 'lucide-react';
+import { createVnpayPayment } from '../../services/paymentService';
 
 interface CheckoutProps { onNavigate: (page: string) => void; }
 
@@ -35,16 +36,43 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
     } catch {}
   }, []);
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
-    // Simulate payment processing
+    if (paymentMethod === 'ewallet') {
+      // Use VNPay flow
+      const orderId = 'ORDER_' + Date.now();
+      const pending = {
+        orderId,
+        items: cartItems.map(i => ({ id: i.id, title: i.title, price: i.price })),
+        total: cartTotal,
+        method: 'vnpay'
+      };
+      try { localStorage.setItem('pending_payment', JSON.stringify(pending)); } catch {}
+      try {
+        console.debug('[VNPay] Creating payment', { orderId, amount: cartTotal });
+        const resp = await createVnpayPayment({
+          orderId,
+          amount: cartTotal,
+          returnUrl: window.location.origin + '/payment/return',
+          ipAddress: '127.0.0.1'
+        });
+        console.debug('[VNPay] Redirecting to', resp.paymentUrl);
+        window.location.href = resp.paymentUrl; // redirect to VNPay
+        return; // stop further simulation
+      } catch (err) {
+        console.error('[VNPay] create error', err);
+        setIsProcessing(false);
+        const msg = err instanceof Error ? err.message : 'Không thể tạo giao dịch VNPay';
+        alert(msg);
+        return;
+      }
+    }
+
+    // Non-VNPay methods keep local simulation
     setTimeout(() => {
       setIsProcessing(false);
       setIsPaid(true);
-
-      // Record purchase history
       try {
         const rawTx = localStorage.getItem('transactions');
         const existing: PurchaseRecord[] = rawTx ? JSON.parse(rawTx) : [];
@@ -57,14 +85,9 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
         };
         existing.unshift(record);
         localStorage.setItem('transactions', JSON.stringify(existing));
-        // Clear cart
         localStorage.removeItem('cart');
       } catch {}
-
-      // Redirect to transaction history after 2 seconds
-      setTimeout(() => {
-        onNavigate('transaction-history');
-      }, 2000);
+      setTimeout(() => { onNavigate('transaction-history'); }, 2000);
     }, 2000);
   };
 
@@ -101,26 +124,10 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
               <form onSubmit={handlePayment} className="space-y-6">
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                   <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer flex-1">
-                      <CreditCard className="w-5 h-5" />
-                      <span>Thẻ tín dụng/ghi nợ</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="ewallet" id="ewallet" />
                     <Label htmlFor="ewallet" className="flex items-center gap-2 cursor-pointer flex-1">
                       <Wallet className="w-5 h-5" />
-                      <span>Ví điện tử (Momo, ZaloPay, VNPay)</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="transfer" id="transfer" />
-                    <Label htmlFor="transfer" className="flex items-center gap-2 cursor-pointer flex-1">
-                      <Building2 className="w-5 h-5" />
-                      <span>Chuyển khoản ngân hàng</span>
+                      <span>VNPay</span>
                     </Label>
                   </div>
                 </RadioGroup>

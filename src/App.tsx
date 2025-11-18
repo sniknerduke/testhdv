@@ -21,6 +21,7 @@ import CourseContent from './components/student/CourseContent';
 import StudentProfile from './components/student/StudentProfile';
 import ShoppingCart from './components/student/ShoppingCart';
 import Checkout from './components/student/Checkout';
+import PaymentReturn from './components/student/PaymentReturn';
 // Removed assignments feature
 // import Assignments from './components/student/Assignments';
 import TransactionHistory from './components/student/TransactionHistory';
@@ -58,6 +59,7 @@ export default function App() {
     'student-profile': '/student/profile',
     'shopping-cart': '/cart',
     'checkout': '/checkout',
+    'payment-return': '/payment/return',
     'transaction-history': '/student/transactions',
     // teacher
     'teacher-dashboard': '/teacher',
@@ -412,6 +414,7 @@ export default function App() {
     if (currentPage === 'student-profile') return <StudentProfile />;
     if (currentPage === 'shopping-cart') return <ShoppingCart onNavigate={navigateTo} />;
     if (currentPage === 'checkout') return <Checkout onNavigate={navigateTo} />;
+    if (currentPage === 'payment-return') return <PaymentReturn onNavigate={navigateTo} />;
     if (currentPage === 'transaction-history') return <TransactionHistory onNavigate={navigateTo} />;
     
     if (currentPage === 'teacher-dashboard') return <TeacherDashboard onNavigate={navigateTo} />;
