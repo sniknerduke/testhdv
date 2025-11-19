@@ -34,6 +34,54 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
         setCartItems(parsed.map((c: any) => ({ id: c.id, title: c.title, price: c.price })));
       }
     } catch {}
+
+    // Detect VNPay redirect result via query params
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const payment = params.get('payment');
+      if (payment === 'success' || payment === 'failed') {
+        const orderId = params.get('orderId') || Date.now().toString();
+        const amountParam = params.get('amount');
+        const responseCode = params.get('code');
+        const isSuccess = payment === 'success';
+
+        // Retrieve pending info (saved before redirect)
+        let pending: any = null;
+        try {
+          const p = localStorage.getItem('pending_payment');
+          if (p) pending = JSON.parse(p);
+        } catch {}
+
+        if (isSuccess) {
+          // Build transaction record
+          const items = pending?.items || cartItems.map(i => ({ id: i.id, title: i.title, price: i.price }));
+          const total = Number(amountParam) || pending?.total || 0;
+          const rawTx = localStorage.getItem('transactions');
+          const existing: PurchaseRecord[] = rawTx ? JSON.parse(rawTx) : [];
+          const record: PurchaseRecord = {
+            id: orderId,
+            time: new Date().toISOString(),
+            items,
+            total,
+            method: 'vnpay'
+          };
+          existing.unshift(record);
+          try { localStorage.setItem('transactions', JSON.stringify(existing)); } catch {}
+          try { localStorage.removeItem('cart'); } catch {}
+          try { localStorage.removeItem('pending_payment'); } catch {}
+          setIsPaid(true);
+        } else {
+          // Failed flow: cleanup pending and notify user
+          try { localStorage.removeItem('pending_payment'); } catch {}
+          if (responseCode) {
+            alert('Thanh toán thất bại (VNPay code ' + responseCode + ').');
+          } else {
+            alert('Thanh toán thất bại.');
+          }
+          setIsProcessing(false);
+        }
+      }
+    } catch {}
   }, []);
 
   const handlePayment = async (e: React.FormEvent) => {
@@ -54,7 +102,6 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
         const resp = await createVnpayPayment({
           orderId,
           amount: cartTotal,
-          returnUrl: window.location.origin + '/payment/return',
           ipAddress: '127.0.0.1'
         });
         console.debug('[VNPay] Redirecting to', resp.paymentUrl);
@@ -127,66 +174,16 @@ export default function Checkout({ onNavigate }: CheckoutProps) {
                     <RadioGroupItem value="ewallet" id="ewallet" />
                     <Label htmlFor="ewallet" className="flex items-center gap-2 cursor-pointer flex-1">
                       <Wallet className="w-5 h-5" />
-                      <span>VNPay</span>
+                      <span>Ví điện tử (VNPay)</span>
                     </Label>
                   </div>
+              
                 </RadioGroup>
-
-                {paymentMethod === 'card' && (
-                  <div className="space-y-4 mt-6">
-                    <div>
-                      <Label>Số thẻ</Label>
-                      <Input 
-                        type="text"
-                        placeholder="1234 5678 9012 3456"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Ngày hết hạn</Label>
-                        <Input 
-                          type="text"
-                          placeholder="MM/YY"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label>CVV</Label>
-                        <Input 
-                          type="text"
-                          placeholder="123"
-                          maxLength={3}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Tên chủ thẻ</Label>
-                      <Input 
-                        type="text"
-                        placeholder="NGUYEN VAN A"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-
                 {paymentMethod === 'ewallet' && (
                   <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-800">
                       Sau khi nhấn "Thanh toán", bạn sẽ được chuyển đến trang ví điện tử để hoàn tất giao dịch.
                     </p>
-                  </div>
-                )}
-
-                {paymentMethod === 'transfer' && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm mb-2">Thông tin chuyển khoản:</p>
-                    <p className="text-sm">Ngân hàng: <strong>Vietcombank</strong></p>
-                    <p className="text-sm">Số tài khoản: <strong>1234567890</strong></p>
-                    <p className="text-sm">Chủ tài khoản: <strong>EDUPLATFORM</strong></p>
-                    <p className="text-sm">Nội dung: <strong>THANHTOAN [Email của bạn]</strong></p>
                   </div>
                 )}
 
