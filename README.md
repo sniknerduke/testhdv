@@ -5,7 +5,8 @@
   Run `npm run dev` to start the development server.
 
   Just in case u got the error missing modules or ps executioh policy is fucked up run :
+  
+  
   Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser ( in ps with ad perm)
-  Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm 
-install ( remove and reinstall the npm modules that available in this shitty project :v then everything should be worked out i think )
+  Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm install ( remove and reinstall the npm modules that available in this shitty project :v then everything should be worked out i think )
   
