@@ -60,17 +60,6 @@ export default function StudentDashboard({ onNavigate }: StudentDashboardProps) 
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Điểm trung bình</p>
-                <p className="text-3xl">{stats.averageScore}</p>
-              </div>
-              <Award className="w-12 h-12 text-yellow-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
 
         <Card>
           <CardContent className="p-6">
@@ -109,32 +98,7 @@ export default function StudentDashboard({ onNavigate }: StudentDashboardProps) 
           </CardContent>
         </Card>
 
-        {/* Score Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Phân bố điểm số</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {scoreDistribution.map((item, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm">Điểm {item.range}</span>
-                    <span className="text-sm text-gray-600">{item.count} bài</span>
-                  </div>
-                  <div className="h-8 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${item.color} flex items-center justify-center text-white text-xs`}
-                      style={{ width: `${(item.count / 10) * 100}%` }}
-                    >
-                      {item.count > 0 && `${item.count}`}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        
 
         {/* Recent Activity */}
         <Card>

@@ -194,17 +194,6 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Đánh giá TB</p>
-                <p className="text-3xl">4.8</p>
-              </div>
-              <TrendingUp className="w-12 h-12 text-purple-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Course Statistics Section */}
@@ -457,49 +446,10 @@ export default function TeacherDashboard({ onNavigate }: TeacherDashboardProps) 
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2"><CardTitle>Tỷ lệ hoàn thành BTVN & Bài kiểm tra</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer className="h-64" config={{ assignment: { label: 'Bài tập', color: 'hsl(197 100% 50%)' }, test: { label: 'Bài kiểm tra', color: 'hsl(25 95% 53%)' } }}>
-                <BarChart data={assignmentBar} margin={{ left: 12, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis dataKey="lesson" />
-                  <YAxis unit="%" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="assignment" fill="var(--color-assignment)" radius={[4,4,0,0]} />
-                  <Bar dataKey="test" fill="var(--color-test)" radius={[4,4,0,0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+          
         </div>
 
-        {/* Alerts & Notes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="pb-2"><CardTitle>Cảnh báo sớm</CardTitle></CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {completionPie.find(x => x.label === 'Bỏ dở')!.value > 15 ? (
-                <div className="flex items-start gap-2">
-                  <Badge className="bg-red-100 text-red-700">Cảnh báo</Badge>
-                  <span>Tỷ lệ bỏ dở cao. Hãy xem lại độ khó bài học và hỗ trợ học viên.</span>
-                </div>
-              ) : (
-                <div className="flex items-start gap-2">
-                  <Badge className="bg-green-100 text-green-700">Ổn định</Badge>
-                  <span>Tỷ lệ hoàn thành đang ở mức tốt.</span>
-                </div>
-              )}
-              {scores.avg < 7 && (
-                <div className="flex items-start gap-2">
-                  <Badge className="bg-yellow-100 text-yellow-700">Chú ý</Badge>
-                  <span>Điểm trung bình thấp, cân nhắc bổ sung ví dụ minh họa và bài luyện tập.</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        
       </div>
     </div>
   );
